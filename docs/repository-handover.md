@@ -1,6 +1,6 @@
 # Repository handover
 
-The intended GitHub repository is **VAutomate-Studio**, private by default. Source preparation does not create a remote repository or account. Complete GitHub sign-in, verify the owner, then create the repository and push `main`. Do not enable customer deployment, broad automation permissions or public visibility as part of routine source setup.
+The development source is hosted in the private [VAutomate-Studio repository](https://github.com/vautomate-studio/VAutomate-Studio), owned by **vautomate-studio**, on branch `main`. GitHub access and the source upload have been verified. Keep customer deployment and public visibility separate from source development.
 
 The root `repository.yaml` and nested `installer/vautomate_installer/config.yaml` follow HAOS repository discovery. This does not make a private source repository a public one-click distribution channel. A customer distribution endpoint/repository, immutable images, signing/custody and public installation link require separate release work. Never embed a GitHub token in a customer installation URL.
 

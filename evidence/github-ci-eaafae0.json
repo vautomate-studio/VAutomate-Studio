@@ -1,0 +1,37 @@
+{
+  "status": "passed",
+  "repository": "https://github.com/vautomate-studio/VAutomate-Studio",
+  "private": true,
+  "run_id": 40763745750,
+  "run_url": "https://github.com/vautomate-studio/VAutomate-Studio/actions/runs/40763745750",
+  "source_commit": "eaafae0a4ecbc23464ac9544355ece92c030747a",
+  "core_versions": [
+    "2026.9.4",
+    "2026.10.2",
+    "2026.10.4"
+  ],
+  "scope": "GitHub-hosted product regressions and native Core import/script contracts; not physical devices, customer onboarding, restore or production certification",
+  "production_certified": false,
+  "jobs": [
+    {
+      "name": "core-contract (2026.10.4)",
+      "conclusion": "success"
+    },
+    {
+      "name": "core-contract (2026.10.2)",
+      "conclusion": "success"
+    },
+    {
+      "name": "core-contract (2026.9.4)",
+      "conclusion": "success"
+    },
+    {
+      "name": "product",
+      "conclusion": "success"
+    },
+    {
+      "name": "release",
+      "conclusion": "skipped"
+    }
+  ]
+}

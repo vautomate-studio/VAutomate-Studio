@@ -14,7 +14,7 @@
 
 ## Not a customer release
 
-The public GitHub repository and installation link are not live. The owner must finish GitHub account verification and supply the username. No account, mail access, hosting or public publication has been created implicitly.
+The private development repository is hosted at https://github.com/vautomate-studio/VAutomate-Studio. GitHub account verification and source upload are complete. Product CI and native Core contract checks passed for source commit eaafae0. A public customer installation link and certified release remain unavailable. No personal-home deployment or public source publication was performed.
 
 Clean-server first-owner setup, invitations/account recovery, guided device pairing/replacement, approved physical hardware, live-camera acceptance, this app identity's phone-notification delivery, backup/restore drills, full manual-update enforcement across all platform/firmware/phone layers, security review and signed immutable container release distribution remain incomplete. The production release gate intentionally refuses promotion. The installer requires an explicit isolated-candidate override.
 
