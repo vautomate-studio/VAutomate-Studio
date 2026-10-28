@@ -1,0 +1,11 @@
+{
+  "status": "passed",
+  "core": "2026.10.2",
+  "scope": "Official Core image; network disabled; native Script semantics and simulated action effects. Not HAOS/hardware certification.",
+  "source_log": "core-smoke-2026.10.2.log",
+  "checks": [
+    "API imports and entity feature constants",
+    "native choose, repeat, parallel and wait",
+    "private dispatch and unknown-reading guard"
+  ]
+}

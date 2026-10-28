@@ -1,0 +1,75 @@
+blueprint:
+  name: "VAutomate · Bathroom entrance and exit · v1"
+  description: >-
+    Use a verified occupancy/presence sensor covering the shower and toilet. Motion-only sensing is deliberately excluded. Keep a manual-hold option and verify stationary occupants before enabling.
+    Review household comfort before enabling. No door contact is interpreted as room occupancy.
+    Unknown/unavailable sensor states do not trigger entry or vacancy actions.
+    These drafts require isolated HAOS/device testing and approved VAutomate creation before customer release.
+  domain: automation
+  author: VAutomate
+  input:
+    occupancy:
+      name: Presence or motion sensor
+      selector:
+        entity:
+          filter:
+            - domain: binary_sensor
+              device_class: occupancy
+            - domain: binary_sensor
+              device_class: presence
+    lights:
+      name: Lights to control
+      selector:
+        entity:
+          multiple: true
+          filter:
+            domain: light
+    vacancy_delay:
+      name: Confirm vacancy for
+      default:
+        seconds: 300
+      selector:
+        duration: {}
+    pause_modes:
+      name: Pause while these home modes are active · optional
+      description: Select Cinema, Dawat, Sleep or a manual-hold helper. Active, missing or unavailable helpers prevent changes.
+      default: []
+      selector:
+        entity:
+          multiple: true
+          filter:
+            domain: input_boolean
+triggers:
+  - trigger: state
+    entity_id: !input occupancy
+    from: "off"
+    to: "on"
+    id: entered
+  - trigger: state
+    entity_id: !input occupancy
+    from: "on"
+    to: "off"
+    for: !input vacancy_delay
+    id: vacant
+variables:
+  pause_entities: !input pause_modes
+conditions:
+  - condition: template
+    value_template: "{{ (expand(pause_entities) | selectattr('state', 'eq', 'off') | list | count) == (pause_entities | count) }}"
+actions:
+  - choose:
+      - conditions: "{{ trigger.id == 'entered' }}"
+        sequence:
+          - action: light.turn_on
+            target:
+              entity_id: !input lights
+      - conditions: "{{ trigger.id == 'vacant' }}"
+        sequence:
+          - condition: state
+            entity_id: !input occupancy
+            state: "off"
+          - action: light.turn_off
+            target:
+              entity_id: !input lights
+mode: restart
+max_exceeded: silent

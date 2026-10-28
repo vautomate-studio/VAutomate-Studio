@@ -1,0 +1,11 @@
+{
+  "status": "passed",
+  "core": "2026.10.2",
+  "scope": "Live Core browser and synthetic device; not physical Android or HAOS certification",
+  "checks": [
+    "real Core sign-in and product bootstrap",
+    "actual demo light toggle confirms and retains focus",
+    "existing template review strips metadata and reaches deliberate approval",
+    "member sign-in, shared home, hidden admin controls and phone layout"
+  ]
+}

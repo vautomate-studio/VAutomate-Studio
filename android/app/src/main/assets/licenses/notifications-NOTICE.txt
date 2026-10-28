@@ -1,0 +1,5 @@
+OkHttp 5.5.1 and Okio 3.18.1: Copyright Square, Inc.
+Kotlin 2.1.21 and Java annotations: Copyright JetBrains s.r.o.
+Licensed under Apache License 2.0, included alongside this notice.
+Maven Central artifact URLs and SHA-256 digests are in the source package vendor/dependencies.json.
+AndroidX Startup 1.2.0, Tracing 1.0.0 and Annotation 1.10.0: Copyright The Android Open Source Project. Apache License 2.0.

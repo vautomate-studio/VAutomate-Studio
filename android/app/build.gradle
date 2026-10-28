@@ -1,0 +1,10 @@
+plugins { id 'com.android.application' }
+android {
+    namespace 'co.vautomate.customer'
+    compileSdk 36
+    defaultConfig { applicationId 'co.vautomate.customer'; minSdk 31; targetSdk 36; versionCode 6; versionName '0.3.0-dev.4' }
+    compileOptions { sourceCompatibility JavaVersion.VERSION_1_8; targetCompatibility JavaVersion.VERSION_1_8 }
+    buildTypes { release { minifyEnabled false; debuggable false } }
+}
+
+dependencies {}

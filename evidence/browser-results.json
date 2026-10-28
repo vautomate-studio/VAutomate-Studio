@@ -1,0 +1,30 @@
+{
+  "status": "passed",
+  "checks": [
+    "room masters any-on off / all-off on",
+    "focus stable on toggle",
+    "information and controls separated",
+    "capability-gated sliders",
+    "persistent mode toggles twice",
+    "shared layout editor",
+    "fresh-home room suggestions stay inert until publish",
+    "admin commissioning status",
+    "mobile and narrow layout",
+    "non-admin menus",
+    "showroom has no backend transport",
+    "bundle preview creates nothing",
+    "approval defaults to paused",
+    "approved routine is editable",
+    "custom authoring shared-home notice and acknowledgement",
+    "room hold and resume",
+    "entity-bound occupancy template approval",
+    "visual time trigger and repeat blocks",
+    "automation default paused and no device execution"
+  ],
+  "viewports": [
+    1440,
+    390,
+    280,
+    1920
+  ]
+}

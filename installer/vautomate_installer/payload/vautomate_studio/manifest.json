@@ -1,0 +1,15 @@
+{
+  "domain": "vautomate_studio",
+  "name": "VAutomate Studio",
+  "version": "0.3.0-dev.4",
+  "config_flow": true,
+  "dependencies": [
+    "http",
+    "websocket_api"
+  ],
+  "codeowners": [],
+  "documentation": "https://vautomate.co",
+  "iot_class": "local_push",
+  "integration_type": "service",
+  "requirements": []
+}

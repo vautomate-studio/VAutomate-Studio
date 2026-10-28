@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "policy": "manual_only",
+  "status": "required_for_commercial_commissioning_not_applied_to_existing_server",
+  "automatic_installation": false,
+  "automatic_package_download": false,
+  "update_checks": "manual",
+  "administrator_required": true,
+  "explicit_install_confirmation_required": true,
+  "backup_and_compatibility_check_before_install": true,
+  "silent_vendor_rollout": false,
+  "customer_chooses_maintenance_window": true,
+  "scope": ["vautomate_app", "vautomate_service", "ha_core", "ha_os", "ha_supervisor", "installed_addons", "approved_integrations", "managed_device_firmware"],
+  "supervisor_desired_auto_update": false,
+  "addon_desired_auto_update": false,
+  "uncontrolled_external_layers": ["customer_phone_os_and_webview", "third_party_app_store_settings", "vendor_cloud_services", "device_vendor_updates_without_a_supported_control"],
+  "exceptions_must_be_reported_before_handover": true,
+  "notes": [
+    "This is a required policy document, not evidence that all platform flags are already configured.",
+    "Only the latest Supervisor is supported upstream. Remaining on an older Supervisor is an explicit support limitation.",
+    "No network blocking, unsupported job-condition bypass or OS permission changes are used to enforce this policy.",
+    "Existing personal server configuration remains read-only in this development session."
+  ]
+}

@@ -1,0 +1,88 @@
+blueprint:
+  name: "VAutomate · Bathroom ventilation · v1"
+  description: >-
+    Start selected fans above the high humidity threshold and stop only after sustained humidity below the lower threshold.
+    The high threshold must exceed the low threshold. Active or unavailable pause helpers prevent changes.
+    Review shared-home comfort and validate the fan, humidity sensor and ventilation requirements before enabling.
+    Lab draft; VAutomate creation binding and physical testing remain pending.
+  domain: automation
+  author: VAutomate
+  input:
+    humidity:
+      name: Bathroom humidity sensor
+      selector:
+        entity:
+          filter:
+            - domain: sensor
+              device_class: humidity
+    fans:
+      name: Fans with supported on/off control
+      selector:
+        entity:
+          multiple: true
+          filter:
+            domain: fan
+    high:
+      name: Start above this humidity
+      default: 65
+      selector:
+        number:
+          min: 20
+          max: 100
+          unit_of_measurement: "%"
+    low:
+      name: Stop below this humidity
+      default: 55
+      selector:
+        number:
+          min: 10
+          max: 95
+          unit_of_measurement: "%"
+    dry_delay:
+      name: Keep humidity low for
+      default:
+        minutes: 10
+      selector:
+        duration: {}
+    pause_modes:
+      name: Pause while these home modes are active · optional
+      description: Select Cinema, Dawat, Sleep or a manual-hold helper. Active, missing or unavailable helpers prevent changes.
+      default: []
+      selector:
+        entity:
+          multiple: true
+          filter:
+            domain: input_boolean
+triggers:
+  - trigger: numeric_state
+    entity_id: !input humidity
+    above: !input high
+    id: humid
+  - trigger: numeric_state
+    entity_id: !input humidity
+    below: !input low
+    for: !input dry_delay
+    id: dry
+variables:
+  pause_entities: !input pause_modes
+  high_limit: !input high
+  low_limit: !input low
+conditions:
+  - condition: template
+    value_template: "{{ high_limit | float > low_limit | float }}"
+  - condition: template
+    value_template: "{{ (expand(pause_entities) | selectattr('state', 'eq', 'off') | list | count) == (pause_entities | count) }}"
+actions:
+  - choose:
+      - conditions: "{{ trigger.id == 'humid' }}"
+        sequence:
+          - action: fan.turn_on
+            target:
+              entity_id: !input fans
+      - conditions: "{{ trigger.id == 'dry' }}"
+        sequence:
+          - action: fan.turn_off
+            target:
+              entity_id: !input fans
+mode: restart
+max_exceeded: silent

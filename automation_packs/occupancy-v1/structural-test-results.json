@@ -1,0 +1,5 @@
+{
+  "status": "passed",
+  "templates": 7,
+  "scope": "Structural YAML, selector, binding and conservative-default checks only. HA runtime and device behavior remain untested."
+}

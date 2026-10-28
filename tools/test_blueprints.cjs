@@ -1,0 +1,15 @@
+/* Structural checks only. Never contacts HA or creates automation instances. */
+const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
+let yaml;try{yaml=require('js-yaml')}catch{yaml=require(require.resolve('js-yaml',{paths:[process.cwd()+'/outputs/VAutomate-Platform']}))}
+const root=path.resolve(__dirname,'..'),pack=path.join(root,'automation_packs/occupancy-v1');
+const schema=yaml.CORE_SCHEMA?.withTags?yaml.CORE_SCHEMA.withTags(yaml.defineScalarTag('!input',{resolve:name=>({__input:name}),identify:()=>false})):yaml.DEFAULT_SCHEMA.extend([new yaml.Type('!input',{kind:'scalar',construct:name=>({__input:name})})]);
+const manifest=JSON.parse(fs.readFileSync(path.join(pack,'manifest.json'),'utf8'));assert.equal(manifest.automatic_installation,false);assert.equal(manifest.customer_ready,false);assert.equal(manifest.templates.length,7);
+const allowed=new Set(['light.turn_on','light.turn_off','fan.turn_on','fan.turn_off','scene.turn_on','cover.close_cover']);
+for(const item of manifest.templates){const source=fs.readFileSync(path.join(pack,item.blueprint),'utf8'),doc=yaml.load(source,{schema});assert.equal(doc.blueprint.domain,'automation');assert(['single','restart'].includes(doc.mode));assert(!/https?:\/\/(?:192\.168\.|100\.)/.test(source));const inputs=doc.blueprint.input;for(const key of item.required_inputs)assert(inputs[key]&&!('default' in inputs[key]),'Required entity selection must not be guessed');
+ function walk(node,key){if(Array.isArray(node)){node.forEach(v=>walk(v,key));return}if(!node||typeof node!=='object')return;if(node.__input){assert(inputs[node.__input],'Unknown !input reference');return}for(const [k,v]of Object.entries(node)){if(k==='action'&&typeof v==='string')assert(allowed.has(v),'Unexpected action '+v);if(k==='entity_id')assert(v&&typeof v==='object'&&v.__input,'Targets must come from entity selection');walk(v,k)}}walk(doc);
+ if(item.id.includes('lighting')||item.id.includes('vacant_lights')){const exit=doc.triggers.find(t=>t.id==='vacant');assert.equal(exit.from,'on');assert.equal(exit.to,'off');assert.deepEqual(exit.for,{__input:'vacancy_delay'});assert.deepEqual(inputs.pause_modes.default,[]);assert(inputs.vacancy_delay.default.seconds>=120)}
+ if(item.id.startsWith('bathroom_presence')){const filters=inputs.occupancy.selector.entity.filter;assert(filters.every(f=>['occupancy','presence'].includes(f.device_class)),'Bathroom presence must not be guessed from a motion or door sensor')}
+ if(item.id==='bathroom_humidity_fan_v1')assert(inputs.high.default>inputs.low.default);
+ assert.equal(item.customer_ready,false);
+}
+const result={status:'passed',templates:manifest.templates.length,scope:'Structural YAML, selector, binding and conservative-default checks only. HA runtime and device behavior remain untested.'};fs.writeFileSync(path.join(pack,'structural-test-results.json'),JSON.stringify(result,null,2));console.log('PASS: seven inert blueprint drafts, explicit entity bindings, no hardcoded household targets, guarded vacancy transitions and bathroom sensor restrictions. Runtime certification remains pending.');

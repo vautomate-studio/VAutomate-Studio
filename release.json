@@ -1,0 +1,117 @@
+{
+  "product": "VAutomate Studio",
+  "version": "0.3.0-dev.4",
+  "api_version": 1,
+  "channel": "development",
+  "production_ready": false,
+  "source_review_baseline": "Home Assistant Core 2026.10.2 and script/sun API 2026.10.4",
+  "certified_core_versions": [],
+  "required_acceptance": {
+    "isolated_haos_runtime": {
+      "status": "pending",
+      "evidence": null
+    },
+    "core_upgrade_and_compatibility": {
+      "status": "pending",
+      "evidence": null
+    },
+    "supervisor_update_and_backup_restore": {
+      "status": "pending",
+      "evidence": null
+    },
+    "approved_hardware_matrix": {
+      "status": "pending",
+      "evidence": null
+    },
+    "android_12_through_current_physical_devices": {
+      "status": "pending",
+      "evidence": null
+    },
+    "camera_live_video_and_remote_connectivity": {
+      "status": "pending",
+      "evidence": null
+    },
+    "pairing_and_device_replacement": {
+      "status": "pending",
+      "evidence": null
+    },
+    "security_review_and_customer_authorization": {
+      "status": "pending",
+      "evidence": null
+    },
+    "notification_delivery_and_recovery": {
+      "status": "pending",
+      "evidence": null
+    },
+    "installer_handover_and_account_recovery": {
+      "status": "pending",
+      "evidence": null
+    },
+    "complex_visual_automation_builder": {
+      "status": "core_container_tests_passed_haos_and_physical_pending",
+      "evidence": null,
+      "partial_evidence": [
+        "evidence/native-core-2026.10.2",
+        "evidence/native-core-2026.9.4"
+      ]
+    },
+    "manual_update_policy_enforcement": {
+      "status": "pending",
+      "evidence": null
+    },
+    "native_occupancy_blueprint_validation_and_creation_binding": {
+      "status": "core_container_tests_passed_haos_and_physical_pending",
+      "evidence": null,
+      "partial_evidence": [
+        "evidence/native-core-2026.10.2",
+        "evidence/native-core-2026.9.4"
+      ]
+    },
+    "commercial_installer_and_first_home": {
+      "status": "lab_install_and_repeat_passed_clean_server_pending",
+      "evidence": null,
+      "partial_evidence": [
+        "evidence/commissioning-dev3/commissioning-result.json",
+        "evidence/commissioning-dev3/browser-commissioning-result.json"
+      ]
+    }
+  },
+  "unreleased_changes": [
+    "Manual bundled HAOS installer with checksum verification, preservation and restart reconciliation",
+    "Admin room suggestions, installation health record and local multi-home inventory",
+    "Connection watchdog and bounded reconnection; no command replay"
+  ],
+  "candidate_changes": [
+    "Seven entity-bound occupancy and home-mode templates with explicit approval",
+    "Visual triggers, grouped conditions, branching, waits, repeats and parallel actions",
+    "Native HA Script adapter with fresh permission checks for each dispatch",
+    "Room holds, mode pause guards, overlap review and redacted activity",
+    "Manual-only desired commissioning policy; existing server unchanged",
+    "Real Core 2026.10.2 native/API/browser checks; paused-template metadata fix",
+    "Older Core 2026.9.4 native/API/Studio/browser checks with separate clean data"
+  ],
+  "runtime_checked_core_versions": [
+    {
+      "version": "2026.10.2",
+      "image_digest": "sha256:33afb0659d786213264c2211f8d91c5fe87461c56eba6a3a546eb05fc71e89f4",
+      "status": "core_synthetic_checks_passed",
+      "personal_core_api_checks": 18,
+      "studio_integration_checks": 10,
+      "browser_checks": 4,
+      "native_script_contract": true,
+      "production_certified": false,
+      "evidence": "evidence/native-core-2026.10.2"
+    },
+    {
+      "version": "2026.9.4",
+      "image_digest": "sha256:3e6710a7ab2a61311d9d899b719f6c3657791c63e8f4942cec4ebc42401d6b76",
+      "status": "core_synthetic_checks_passed",
+      "personal_core_api_checks": 18,
+      "studio_integration_checks": 10,
+      "browser_checks": 4,
+      "native_script_contract": true,
+      "production_certified": false,
+      "evidence": "evidence/native-core-2026.9.4"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "version": "0.3.0-dev.4",
+  "production_ready": false,
+  "files": {
+    "vautomate_studio/bundles.py": "d3b418d69df21462ef19e008f5736c4fb2000ec4eadb707e536c61305b1a6761",
+    "vautomate_studio/commissioning.py": "d215d0fc527a0cd2bcd8acdb2ba6efe70f9e419529b4a032275cc60c2e4805d4",
+    "vautomate_studio/config_flow.py": "4ec3687c9884dbec45ac9d0a3a7bd83377a3db859b776065e435e8c79dfb1741",
+    "vautomate_studio/engine.py": "f6b305f3276de82372219744f8e95482938ffbe96944816406fb3f53be9d6df1",
+    "vautomate_studio/manifest.json": "8fdb641da8384e1cc0a8d04f1646547b426a04558b4c99692d491fad744cf843",
+    "vautomate_studio/rules.py": "14bc9642f15baf931f9d800a783bd3d24175d64c5f67833aa16a15880915e6e3",
+    "vautomate_studio/rule_runtime.py": "b081b662a21efd2d53c84f0d1800ab9efc0ae697035f33ff4d20baba0245ea1b",
+    "vautomate_studio/rule_store.py": "b177fd05090f331ff9674f0ebff6621dd7a902862ab74ce53076e53ba8700fdc",
+    "vautomate_studio/rule_templates.py": "daf44c8c3eda37322f2ddf9d4536c2ca2c20abc0e69629e9f16853bd05da9069",
+    "vautomate_studio/strings.json": "098aa2c85b24dc826092dc0139445f0e0a1aff932eba8db9d1e71aa594ce46d9",
+    "vautomate_studio/__init__.py": "8cce2f9e1ff9dc378c0fd2b7528523155edfccc839d4e148df9dbb9a1df9667f",
+    "vautomate_studio/translations/en.json": "098aa2c85b24dc826092dc0139445f0e0a1aff932eba8db9d1e71aa594ce46d9",
+    "vautomate_studio/www/app.js": "55c2a0f48a90833d8d2379ee559113ddd83d0f64723d0b38f8e0834ec87fc04b",
+    "vautomate_studio/www/automations.js": "c188368205ce3781f0c2c8988fafb14826d30988df6899fa595eeb56014420e6",
+    "vautomate_studio/www/brand-long.svg": "bde0dc64a761ddf440698a385b6e11a75605c1a45b66ebbd84ac1d5df4b74bf0",
+    "vautomate_studio/www/brand-short.svg": "9f60ab829422cabb1730686edcfeb44671e8d05e1caad2307ed9a50c6e3123e8",
+    "vautomate_studio/www/client.js": "11ca640cd506daa1bf1f473467c69e597a94ccb36f39e375e025269a577b563f",
+    "vautomate_studio/www/index.html": "9ae666a78680a1334d764303bc01da1c84a5ece4590c6d8540f7391d20c54bd4",
+    "vautomate_studio/www/native-runtime.js": "4ab47c7d276b9b2fd516b6441f95dd0b352718270c4d69aa43eb57d8cde70587",
+    "vautomate_studio/www/studio.css": "7f3aa8db67f0f91a27a3e6270cf89567729e78f3c23d5ca591c1e423346dcaa7"
+  },
+  "manual_install_only": true
+}

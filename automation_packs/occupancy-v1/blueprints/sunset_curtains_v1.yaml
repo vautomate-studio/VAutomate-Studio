@@ -1,0 +1,38 @@
+blueprint:
+  name: "VAutomate · Sunset curtains · v1"
+  description: >-
+    Close selected curtains at sunset if none of the chosen pause helpers are active.
+    Verify direction, motor limits, obstacles and manual controls before enabling. Lab draft; customer binding is pending.
+  domain: automation
+  author: VAutomate
+  input:
+    curtains:
+      name: Curtains to close
+      selector:
+        entity:
+          multiple: true
+          filter:
+            domain: cover
+    pause_modes:
+      name: Pause while these home modes are active · optional
+      description: Select Cinema, Dawat, Sleep or a manual-hold helper. Active, missing or unavailable helpers prevent changes.
+      default: []
+      selector:
+        entity:
+          multiple: true
+          filter:
+            domain: input_boolean
+triggers:
+  - trigger: sun
+    event: sunset
+variables:
+  pause_entities: !input pause_modes
+conditions:
+  - condition: template
+    value_template: "{{ (expand(pause_entities) | selectattr('state', 'eq', 'off') | list | count) == (pause_entities | count) }}"
+actions:
+  - action: cover.close_cover
+    target:
+      entity_id: !input curtains
+mode: single
+max_exceeded: silent

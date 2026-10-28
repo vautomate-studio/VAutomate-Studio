@@ -1,0 +1,1 @@
+/* Setup is implemented in the versioned customer app.js. */

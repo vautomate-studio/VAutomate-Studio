@@ -1,0 +1,18 @@
+{
+  "status": "passed",
+  "core": "2026.9.4",
+  "scope": "Full Core integration on synthetic fixtures. No Supervisor, physical devices or real home.",
+  "checks": [
+    "new integration starts read-only",
+    "real discovery and shared layout publication",
+    "template preview is inert",
+    "approval creates paused rule",
+    "enabling requires a separate explicit review",
+    "actual state event executes native rule and demo light confirms on",
+    "native confirmed-vacancy action, no immediate switch-off",
+    "completed trace without private execution token",
+    "room hold blocks rule; resuming does not replay",
+    "member sees published layout; backend rejects administrative operations"
+  ],
+  "at": "2026-10-27T22:25:42.162Z"
+}

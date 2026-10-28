@@ -1,0 +1,7 @@
+{
+  "status": "passed",
+  "tests": 80,
+  "failures": 0,
+  "errors": 0,
+  "scope": "Isolated engine and simulated adapter. No live HAOS connection."
+}

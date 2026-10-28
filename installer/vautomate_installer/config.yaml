@@ -1,0 +1,21 @@
+name: VAutomate Studio Installer
+version: "0.3.0-dev.4"
+slug: vautomate_studio_installer
+description: Manually install the bundled Studio service and prepare home onboarding.
+arch: [amd64, aarch64]
+stage: experimental
+startup: once
+boot: manual_only
+init: false
+hassio_api: true
+hassio_role: homeassistant
+homeassistant_api: true
+map:
+  - type: homeassistant_config
+    read_only: false
+options:
+  independent_backup_confirmed: false
+  allow_candidate: false
+schema:
+  independent_backup_confirmed: bool
+  allow_candidate: bool

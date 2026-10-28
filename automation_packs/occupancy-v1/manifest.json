@@ -1,0 +1,107 @@
+{
+  "schema": 1,
+  "version": "0.1.0",
+  "status": "lab_drafts",
+  "automatic_installation": false,
+  "approval_required_before_instance_creation": true,
+  "customer_ready": false,
+  "templates": [
+    {
+      "id": "room_presence_lighting_v1",
+      "name": "Room entrance and exit",
+      "version": 1,
+      "blueprint": "blueprints/room_presence_lighting_v1.yaml",
+      "required_inputs": [
+        "occupancy",
+        "lights"
+      ],
+      "description": "Turn selected lights on for detected occupancy and off only after confirmed vacancy. Select an occupancy/presence sensor covering the occupied space.",
+      "runtime": "home_assistant_native_blueprint",
+      "status": "lab_draft_not_bound_to_vautomate_creation_api",
+      "customer_ready": false
+    },
+    {
+      "id": "room_vacant_lights_v1",
+      "name": "Room exit lights off",
+      "version": 1,
+      "blueprint": "blueprints/room_vacant_lights_v1.yaml",
+      "required_inputs": [
+        "occupancy",
+        "lights"
+      ],
+      "description": "Turn selected lights off after confirmed vacancy. This draft does not turn lights on and must be paused when manual lighting should remain unchanged.",
+      "runtime": "home_assistant_native_blueprint",
+      "status": "lab_draft_not_bound_to_vautomate_creation_api",
+      "customer_ready": false
+    },
+    {
+      "id": "bathroom_presence_lighting_v1",
+      "name": "Bathroom entrance and exit",
+      "version": 1,
+      "blueprint": "blueprints/bathroom_presence_lighting_v1.yaml",
+      "required_inputs": [
+        "occupancy",
+        "lights"
+      ],
+      "description": "Use a verified occupancy/presence sensor covering the shower and toilet. Motion-only sensing is deliberately excluded. Keep a manual-hold option and verify stationary occupants before enabling.",
+      "runtime": "home_assistant_native_blueprint",
+      "status": "lab_draft_not_bound_to_vautomate_creation_api",
+      "customer_ready": false
+    },
+    {
+      "id": "hallway_motion_lighting_v1",
+      "name": "Hallway motion lighting",
+      "version": 1,
+      "blueprint": "blueprints/hallway_motion_lighting_v1.yaml",
+      "required_inputs": [
+        "occupancy",
+        "lights"
+      ],
+      "description": "Turn selected hallway lights on when motion begins, then off after the selected no-motion delay. No motion is not proof that a stationary person has left a room.",
+      "runtime": "home_assistant_native_blueprint",
+      "status": "lab_draft_not_bound_to_vautomate_creation_api",
+      "customer_ready": false
+    },
+    {
+      "id": "bathroom_humidity_fan_v1",
+      "name": "Bathroom ventilation",
+      "version": 1,
+      "blueprint": "blueprints/bathroom_humidity_fan_v1.yaml",
+      "required_inputs": [
+        "humidity",
+        "fans"
+      ],
+      "description": "Humidity hysteresis and a dry-out delay, with optional home-mode pause guards.",
+      "runtime": "home_assistant_native_blueprint",
+      "status": "lab_draft_not_bound_to_vautomate_creation_api",
+      "customer_ready": false
+    },
+    {
+      "id": "sunset_curtains_v1",
+      "name": "Sunset curtains",
+      "version": 1,
+      "blueprint": "blueprints/sunset_curtains_v1.yaml",
+      "required_inputs": [
+        "curtains"
+      ],
+      "description": "Close selected curtains at sunset, respecting optional pause modes.",
+      "runtime": "home_assistant_native_blueprint",
+      "status": "lab_draft_not_bound_to_vautomate_creation_api",
+      "customer_ready": false
+    },
+    {
+      "id": "home_mode_scenes_v1",
+      "name": "Dawat, Cinema and other home modes",
+      "version": 1,
+      "blueprint": "blueprints/home_mode_scenes_v1.yaml",
+      "required_inputs": [
+        "mode_helper",
+        "on_scene"
+      ],
+      "description": "A persistent helper chooses exactly which entry/exit scenes to apply.",
+      "runtime": "home_assistant_native_blueprint",
+      "status": "lab_draft_not_bound_to_vautomate_creation_api",
+      "customer_ready": false
+    }
+  ]
+}

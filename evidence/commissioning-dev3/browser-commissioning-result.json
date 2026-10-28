@@ -1,0 +1,12 @@
+{
+  "status": "passed",
+  "checked_at": "2026-10-28T12:44:11.538Z",
+  "checks": [
+    "actual admin status screen and private local export",
+    "export identifies exact development release and remains uncertified",
+    "phone status fits without overflow",
+    "member has no commissioning or editing controls",
+    "no uncaught browser errors"
+  ],
+  "scope": "Live desktop/mobile browser only, no physical Android certification"
+}

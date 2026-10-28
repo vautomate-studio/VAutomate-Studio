@@ -1,0 +1,101 @@
+{
+  "scope": "Synthetic local Core container lab; API contract checks, not complete UI/hardware certification",
+  "server": "http://127.0.0.1:18123",
+  "core": "2026.9.4",
+  "checked_at": "2026-10-27T22:24:48.337Z",
+  "results": [
+    {
+      "name": "Device state list",
+      "operation": "get_states",
+      "status": "passed"
+    },
+    {
+      "name": "Device action catalogue",
+      "operation": "get_services",
+      "status": "passed"
+    },
+    {
+      "name": "Current user",
+      "operation": "auth/current_user",
+      "status": "passed"
+    },
+    {
+      "name": "Areas",
+      "operation": "config/area_registry/list",
+      "status": "passed"
+    },
+    {
+      "name": "Devices",
+      "operation": "config/device_registry/list",
+      "status": "passed"
+    },
+    {
+      "name": "Entities",
+      "operation": "config/entity_registry/list",
+      "status": "passed"
+    },
+    {
+      "name": "Integration entries",
+      "operation": "config_entries/get",
+      "status": "passed"
+    },
+    {
+      "name": "People",
+      "operation": "person/list",
+      "status": "passed"
+    },
+    {
+      "name": "Repair issues",
+      "operation": "repairs/list_issues",
+      "status": "passed"
+    },
+    {
+      "name": "System log",
+      "operation": "system_log/list",
+      "status": "passed"
+    },
+    {
+      "name": "Accounts",
+      "operation": "config/auth/list",
+      "status": "passed"
+    },
+    {
+      "name": "Saved dashboard preferences",
+      "operation": "frontend/get_user_data",
+      "status": "passed"
+    },
+    {
+      "name": "HA bell notifications",
+      "operation": "persistent_notification/get",
+      "status": "passed"
+    },
+    {
+      "name": "Supervisor and OS management",
+      "status": "not_applicable_core_container",
+      "reason": "Requires the separate full HAOS acceptance environment"
+    },
+    {
+      "name": "Demo light on",
+      "operation": "call_service",
+      "status": "passed"
+    },
+    {
+      "name": "Demo light confirms on",
+      "status": "passed"
+    },
+    {
+      "name": "Demo light off",
+      "operation": "call_service",
+      "status": "passed"
+    },
+    {
+      "name": "Demo light confirms off",
+      "status": "passed"
+    },
+    {
+      "name": "Recorded entity history",
+      "operation": "history/history_during_period",
+      "status": "passed"
+    }
+  ]
+}

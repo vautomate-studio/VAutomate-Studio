@@ -1,0 +1,14 @@
+{
+  "name": "vautomate-studio-commercial",
+  "version": "0.3.0-dev.4",
+  "private": true,
+  "description": "Isolated VAutomate customer product and compatibility service",
+  "scripts": {
+    "test": "node tests/repository.cjs && node tests/client.cjs && node tests/connection.cjs && node tests/browser.cjs",
+    "test:blueprints": "node tools/test_blueprints.cjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "js-yaml": "5.4.2"
+  }
+}

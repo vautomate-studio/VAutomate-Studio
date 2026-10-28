@@ -1,0 +1,7 @@
+{
+  "schema":1,
+  "approved_devices":[],
+  "categories":["light","curtain","security_panel","camera","media","fan","climate"],
+  "approval_requires":["manufacturer","model","firmware","integration","integration_version","pairing_instructions","capabilities_tested","power_loss_test","offline_recovery_test","device_replacement_test","evidence"],
+  "note":"No model is advertised as certified until physical acceptance evidence exists. Entity feature discovery is not hardware certification."
+}
