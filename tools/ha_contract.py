@@ -22,5 +22,12 @@ assert 'backup_job_id' in NewBackup.__dataclass_fields__
 assert {'include_all_addons','include_database','include_folders','include_homeassistant','password','agent_ids'} <= set(inspect.signature(BackupManager.async_initiate_backup).parameters)
 assert {'restore_addons','restore_database','restore_folders','restore_homeassistant'} <= set(inspect.signature(BackupManager.async_restore_backup).parameters)
 assert {'backup_id','size','protected','addons','folders','homeassistant_included'} <= set(AgentBackup.__dataclass_fields__)
+from homeassistant.auth import AuthManager
+from homeassistant.auth.const import GROUP_ID_READ_ONLY
+from homeassistant.auth.providers.homeassistant import HassAuthProvider,async_get_provider
+assert GROUP_ID_READ_ONLY=='system-read-only'
+assert {'group_ids','local_only'} <= set(inspect.signature(AuthManager.async_create_user).parameters)
+assert {'is_active','group_ids','local_only'} <= set(inspect.signature(AuthManager.async_update_user).parameters)
+assert callable(AuthManager.async_remove_refresh_token) and callable(HassAuthProvider.async_change_password) and callable(async_get_provider)
 print('API import and feature contract passed on Core',__version__)
 print('This is a source/API smoke test. Full HAOS, update, restore and device tests remain separate gates.')

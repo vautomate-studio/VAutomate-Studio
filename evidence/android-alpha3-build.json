@@ -1,0 +1,20 @@
+{
+  "status": "build_and_signature_verified",
+  "version": "0.4.0-alpha.3",
+  "package": "co.vautomate.customer",
+  "version_code": 9,
+  "min_sdk": 31,
+  "target_sdk": 36,
+  "sha256": "16fe0316c7f63167e861f8b52866a4cc5adeffa6fe6c8c874132ea36d76b64a9",
+  "signer_sha256": "d445af7e206054b672a690f54a19cbc9d9d1864e0eb5626ed9255f798d714aec",
+  "checks": [
+    "established signing identity",
+    "APK v3 signature",
+    "zip alignment",
+    "all canonical frontend assets match",
+    "manifest identity",
+    "plain JDK native URL policy test"
+  ],
+  "physical_device_tests": "not_run",
+  "production_certified": false
+}

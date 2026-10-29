@@ -24,9 +24,11 @@
   let initialized=false;for(let attempt=0;attempt<30;attempt++){const health=await request(client,'/api/vautomate_studio/v1/health');if(health){if(health.api_version!==1)throw new StudioError('incompatible','Your home needs a compatible VAutomate service.');if(health.initialized===true){initialized=true;break}}await new Promise(resolve=>setTimeout(resolve,1000))}if(!initialized)throw new StudioError('setup_pending','Your home is still finishing setup. Continue shortly; your owner account was kept.');
   client.open();
  }
+ function passwordBytes(value){try{return encodeURIComponent(value).replace(/%[0-9A-F]{2}/gi,'x').length}catch{return Infinity}}
  async function create(client,values){
   const name=String(values.name||'').trim(),username=String(values.username||'').trim().toLowerCase(),password=values.password;
-  if(!name||name.length>80||! /^[a-z0-9][a-z0-9_.-]{2,47}$/.test(username)||typeof password!=='string'||password.length<12||password.length>256)throw new StudioError('invalid_input','Use a name, a username with 3–48 letters/numbers, and a password with at least 12 characters.');
+  if(!name||name.length>80||! /^[a-z0-9][a-z0-9_.-]{2,47}$/.test(username)||typeof password!=='string'||Array.from(password).length<12)throw new StudioError('invalid_input','Use a name, a username with 3–48 letters/numbers, and a password with at least 12 characters.');
+  if(passwordBytes(password)>72)throw new StudioError('invalid_input','This password is too long for the home sign-in provider. Use a shorter passphrase.');
   const before=await probe(client);if(!before?.needsOwner)throw new StudioError('already_configured','This home already has an owner. Sign in with the existing account.');
   const result=await request(client,'/api/onboarding/users',{client_id:client.clientId,name,username,password,language:'en'});
   if(typeof result.auth_code!=='string'||!result.auth_code)throw new StudioError('setup_unavailable','The owner account was created, but sign-in needs another attempt.');

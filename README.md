@@ -2,7 +2,7 @@
 
 A VAutomate frontend and scoped service for one independent Home Assistant server per home, with a separate Android customer app and commissioning installer.
 
-**Development version 0.4.0-alpha.2. Not certified for paying-customer deployment.** Production installation remains blocked by acceptance checks. The personal VAutomate application and existing household configuration are separate.
+**Development version 0.4.0-alpha.3. Not certified for paying-customer deployment.** Production installation remains blocked by acceptance checks. The personal VAutomate application and existing household configuration are separate.
 
 ## Product
 
@@ -17,6 +17,7 @@ A VAutomate frontend and scoped service for one independent Home Assistant serve
 - Manual HAOS installer, existing-code preservation, configuration checks and exact running-version confirmation.
 - Local installation inventory for many independent homes; no remote support or cloud control enabled by default.
 - Administrator-only encrypted backups, independent streaming downloads, archive import and reviewed restoration. [Recovery workflow and test scope](docs/recovery.md).
+- Reviewed household administration, view-only roles and password/session care with owner protection. [Account workflow and test scope](docs/household-access.md).
 
 ## Repository
 

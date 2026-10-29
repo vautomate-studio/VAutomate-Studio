@@ -27,6 +27,11 @@ Responses use normal HA result/error envelopes. An unsupported product operation
 | `backups/status` | Administrator | Local encrypted-copy metadata and backup-manager state; no cloud reads or passwords |
 | `backups/preview` | Administrator | Inert five-minute review for encrypted creation or selected restoration |
 | `backups/approve` | Same administrator | One explicitly approved create/restore dispatch; no automatic replay; password stays transient |
+| `accounts/me` | Active household account | Own safe account/role details; no credentials or tokens |
+| `accounts/list` | Administrator | Household identities and roles; system accounts excluded |
+| `accounts/preview` | Administrator | Account-bound five-minute create/edit/remove/reset review without writing |
+| `accounts/approve` | Same administrator and current password | Reviewed create/edit/remove; only owner can reset another password; owner/self/system access protected |
+| `accounts/password` | Active account and own current password | Change only its own password and end pre-existing sessions |
 
 Recovery uses three fixed HTTP routes. `POST /api/vautomate_studio/v1/backups/export` requires administrator authentication and prepares a one-use HttpOnly download cookie. `GET /api/vautomate_studio/v1/backups/download/{backup_id}` consumes that cookie, rechecks current administrator status and streams the original archive. No account credential, password or download capability appears in the URL. `POST /api/vautomate_studio/v1/backups/import` requires administrator authentication and streams one multipart `.tar` file into local backup storage; it never restores automatically. See [recovery scope](recovery.md).
 

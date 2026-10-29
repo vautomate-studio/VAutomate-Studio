@@ -1,0 +1,15 @@
+{
+  "status": "passed",
+  "scope": "Inert household API fixture, not real user/password or physical-device acceptance",
+  "checks": [
+    "owner has no removal control",
+    "account labels remain text",
+    "review sends no mutation",
+    "view-only role can be selected",
+    "password mismatch sends no approval",
+    "password fields clear after submission and on closing",
+    "phone review fits without horizontal overflow",
+    "member has no household administration entry but has own password entry",
+    "no uncaught browser errors"
+  ]
+}

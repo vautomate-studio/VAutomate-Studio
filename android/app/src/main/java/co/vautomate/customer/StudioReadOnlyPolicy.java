@@ -15,6 +15,7 @@ final class StudioReadOnlyPolicy {
             if(path.matches("/api/onboarding/(users|core_config|analytics|integration)"))return verb.equals("POST");
             if(path.matches("/api/config/config_entries/flow(/([a-f0-9]{32}|[0-9A-HJKMNP-TV-Z]{26}))?"))return verb.equals("POST");
             if(path.matches("/api/vautomate_studio/v1/backups/(export|import)"))return verb.equals("POST");
+            if(path.equals("/api/vautomate_studio/v1/health"))return verb.equals("GET");
             if(path.matches("/api/vautomate_studio/v1/backups/download/[A-Za-z0-9_-]{1,128}"))return verb.equals("GET")||verb.equals("HEAD");
             if(!verb.equals("GET")&&!verb.equals("HEAD"))return false;
             if(path.startsWith("/vautomate-studio/"))return true;

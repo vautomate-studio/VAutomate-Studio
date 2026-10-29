@@ -25,7 +25,7 @@ function fixture(options={}){
  assert(!f.calls.find(c=>c.route==='/api/onboarding/users').init.headers.Authorization);assert(f.calls.find(c=>c.route==='/api/onboarding/core_config').init.headers.Authorization);
  assert.deepEqual(f.calls.find(c=>c.route==='/api/onboarding/analytics').body,{},'No analytics opt-in is selected');
  f=fixture({existing:true});await assert.rejects(f.api.create(f.client,{name:'Owner',username:'owner',password:'fixture-password-long'}),e=>e.code==='already_configured');assert(!f.calls.some(c=>c.init?.method==='POST'));
- f=fixture();await assert.rejects(f.api.create(f.client,{name:'Owner',username:'owner',password:'short'}),e=>e.code==='invalid_input');assert.equal(f.calls.length,0);
+ f=fixture();await assert.rejects(f.api.create(f.client,{name:'Owner',username:'owner',password:'short'}),e=>e.code==='invalid_input');assert.equal(f.calls.length,0);for(const password of ['a'.repeat(73),'界'.repeat(25),'😀'.repeat(6)]){await assert.rejects(f.api.create(f.client,{name:'Owner',username:'owner',password}),e=>e.code==='invalid_input');assert.equal(f.calls.length,0)}
  f=fixture({unknown:true,existing:true});f.client.access='fixture';await assert.rejects(f.api.complete(f.client),e=>e.code==='incompatible');assert(!f.calls.some(c=>c.init?.method==='POST'));
  f=fixture({existing:true,missingPackage:true});f.client.access='fixture';await assert.rejects(f.api.complete(f.client),e=>e.code==='installer_required');assert(!f.calls.some(c=>c.route==='open-websocket'));
  f=fixture({existing:true,alreadyConfigured:true});f.client.access='fixture';await f.api.complete(f.client);assert.equal(f.calls.at(-1).route,'open-websocket');

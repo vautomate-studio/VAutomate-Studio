@@ -1,6 +1,6 @@
 {
   "product": "VAutomate Studio",
-  "version": "0.4.0-alpha.2",
+  "version": "0.4.0-alpha.3",
   "api_version": 1,
   "channel": "alpha",
   "production_ready": false,
@@ -47,8 +47,12 @@
       "evidence": null
     },
     "installer_handover_and_account_recovery": {
-      "status": "pending",
-      "evidence": null
+      "status": "household_account_lifecycle_passed_owner_lost_password_and_handover_pending",
+      "evidence": null,
+      "partial_evidence": [
+        "evidence/household-alpha3/household-live-result.json",
+        "evidence/household-browser.json"
+      ]
     },
     "complex_visual_automation_builder": {
       "status": "core_container_tests_passed_haos_and_physical_pending",
@@ -80,7 +84,8 @@
         "evidence/first-home-alpha1/clean-studio-install-result.json",
         "evidence/first-home-alpha1/commissioning-result.json",
         "evidence/first-home-alpha1/browser-commissioning-result.json",
-        "evidence/first-owner-browser.json"
+        "evidence/first-owner-browser.json",
+        "evidence/household-alpha3/first-owner-live-result.json"
       ]
     }
   },
@@ -96,7 +101,11 @@
     "Admin-only encrypted full home backups, independent streaming export and archive import",
     "Account-bound recovery review and explicit restore with no request replay",
     "Real same-lab HAOS restore drill with independent copy and cold checkpoint",
-    "Native HTTP route guard covers onboarding and recovery without generic configuration access"
+    "Native HTTP route guard covers onboarding and recovery without generic configuration access",
+    "Reviewed household account creation, role changes, removal and owner-only password resets",
+    "Member, view-only and administrator roles with fresh backend checks and session revocation",
+    "Own password changes, bounded verification attempts, no exported hashes and protected owner/self accounts",
+    "New passwords rejected above the backend hash limit rather than silently truncated"
   ],
   "candidate_changes": [
     "Seven entity-bound occupancy and home-mode templates with explicit approval",

@@ -14,7 +14,7 @@ jdk=args.java_home/'bin';android=args.android_jar.resolve();tools=args.build_too
 def exe(folder,name):return folder/(name+'.exe' if (folder/(name+'.exe')).exists() else name)
 def run(values):subprocess.run([str(value) for value in values],check=True)
 run([exe(tools,'aapt2'),'compile','--dir',project/'app/src/main/res','-o',build/'resources.zip'])
-run([exe(tools,'aapt2'),'link','-o',build/'resources.apk','--manifest',project/'app/src/main/AndroidManifest.xml','-I',android,'--java',generated,'--extra-packages','androidx.startup:androidx.tracing','--min-sdk-version','31','--target-sdk-version','36','--version-code','8','--version-name','0.4.0-alpha.2','-A',project/'app/src/main/assets',build/'resources.zip'])
+run([exe(tools,'aapt2'),'link','-o',build/'resources.apk','--manifest',project/'app/src/main/AndroidManifest.xml','-I',android,'--java',generated,'--extra-packages','androidx.startup:androidx.tracing','--min-sdk-version','31','--target-sdk-version','36','--version-code','9','--version-name','0.4.0-alpha.3','-A',project/'app/src/main/assets',build/'resources.zip'])
 sources=list((project/'app/src/main/java').rglob('*.java'))+list(generated.rglob('*.java'))
 libraries=sorted((project/'vendor').glob('*.jar'))
 lock=json.loads((project/'vendor/dependencies.json').read_text(encoding='utf-8'))

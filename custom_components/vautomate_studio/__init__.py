@@ -33,6 +33,8 @@ from .rules import compile_script
 from .rule_templates import library as rule_library
 from .home_backups import HomeBackups,backup_id
 from .ha_backups import HABackups
+from .household import Household
+from .ha_household import HAHousehold
 
 DOMAIN="vautomate_studio"
 _LOGGER=logging.getLogger(__name__)
@@ -214,7 +216,7 @@ async def async_setup_entry(hass,entry):
     if "installation_id" not in engine.document:
         engine.document["installation_id"]=engine.installation_id
         await store.async_save(engine.document)
-    hass.data[DOMAIN]={"engine":engine,"entry":entry,"last_tick":None,"backups":HomeBackups(HABackups(hass))}
+    hass.data[DOMAIN]={"engine":engine,"entry":entry,"last_tick":None,"backups":HomeBackups(HABackups(hass)),"household":Household(HAHousehold(hass))}
     if not hass.data.get(DOMAIN+"_registered"):
         hass.http.register_view(StudioHealthView)
         hass.http.register_view(StudioBackupExportView)
@@ -306,6 +308,11 @@ async def studio_request(hass,connection,msg):
         elif op=="backups/status":result=await hass.data[DOMAIN]["backups"].status(actor)
         elif op=="backups/preview":result=await hass.data[DOMAIN]["backups"].preview(actor,payload)
         elif op=="backups/approve":result=await hass.data[DOMAIN]["backups"].approve(actor,payload)
+        elif op=="accounts/me":result=await hass.data[DOMAIN]["household"].me(actor)
+        elif op=="accounts/list":result=await hass.data[DOMAIN]["household"].people(actor)
+        elif op=="accounts/preview":result=await hass.data[DOMAIN]["household"].preview(actor,payload)
+        elif op=="accounts/approve":result=await hass.data[DOMAIN]["household"].approve(actor,payload)
+        elif op=="accounts/password":result=await hass.data[DOMAIN]["household"].own_password(actor,payload)
         elif op=="layout/preview":
             result={"layout":engine.validate_layout(actor,payload.get("layout")),"writes":False}
         elif op=="layout/publish":result=await engine.publish(actor,payload.get("layout"),payload.get("revision"))

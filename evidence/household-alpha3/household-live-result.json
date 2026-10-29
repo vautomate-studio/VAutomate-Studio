@@ -1,0 +1,23 @@
+{
+  "status": "passed",
+  "checked_at": "2026-10-29T06:45:00.311Z",
+  "source": "0.4.0-alpha.3",
+  "core": "2026.10.4",
+  "checks": [
+    "real reviewed account creation and duplicate-approval receipt",
+    "wrong administrator password rejected before mutation",
+    "member denied family listing and administration",
+    "owner protected from deletion",
+    "real view-only group sees shared layout with no light operations",
+    "view-only device command rejected before dispatch",
+    "promotion, demotion, disable and removal close existing sessions",
+    "non-owner administrator cannot reset another account password",
+    "self password change rejects old password and permits new sign-in",
+    "owner reset closes prior sessions and rejects prior password",
+    "typed removal deletes credentials and denies subsequent sign-in",
+    "temporary account removed and original fixture layout/read-only mode restored"
+  ],
+  "personal_server_changed": false,
+  "primary_lab_accounts_changed": false,
+  "scope": "Disposable real Core authentication on HAOS lab, with a simulated light; no physical phone or owner-lost-password recovery certification"
+}

@@ -19,6 +19,8 @@ public final class NativePolicyTest {
         check("/api/vautomate_studio/v1/backups/export","GET",false);
         check("/api/vautomate_studio/v1/backups/import","POST",true);
         check("/api/vautomate_studio/v1/backups/import","GET",false);
+        check("/api/vautomate_studio/v1/health","GET",true);
+        check("/api/vautomate_studio/v1/health","POST",false);
         check("/api/vautomate_studio/v1/backups/download/a12345","GET",true);
         check("/api/vautomate_studio/v1/backups/download/../auth","GET",false);
         check("/api/vautomate_studio/v1/backups/download/%2e%2e","GET",false);

@@ -1,6 +1,10 @@
 # Commercial commissioning status
 
-29 October 2026. Source version 0.4.0-alpha.2. Fresh Core first-owner onboarding, missing-entry installation on HAOS, restored shared-home permissions and live phone/desktop browser checks now pass. See [scoped evidence](../docs/first-home-onboarding.md). No new physical Android acceptance or customer certification is claimed. The historical results below belong to 0.3.0-dev.3.
+29 October 2026. Source version 0.4.0-alpha.3. Fresh Core first-owner onboarding, missing-entry installation on HAOS, restored shared-home permissions and live phone/desktop browser checks now pass. See [scoped evidence](../docs/first-home-onboarding.md). No new physical Android acceptance or customer certification is claimed. The historical results below belong to 0.3.0-dev.3.
+
+## Household alpha
+
+Reviewed account creation, member/view-only/admin roles, access changes, removal, self password changes and owner-only resets now pass real disposable Core tests. Owner/self protection and actual old-session closure were checked. Main HAOS account screens passed read-only phone/desktop verification. Lost-owner-password recovery and physical Android handover remain pending. See [household evidence](../docs/household-access.md).
 
 ## Recovery alpha
 
