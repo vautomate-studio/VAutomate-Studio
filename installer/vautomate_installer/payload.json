@@ -1,7 +1,6 @@
 {
-  "version": "0.4.0-alpha.3",
-  "production_ready": false,
   "files": {
+    "vautomate_studio/__init__.py": "3404299f3d14735c550891ee2f0a3b7ac1c66dd88fd101c90eb116dd8d9b69d9",
     "vautomate_studio/bundles.py": "d3b418d69df21462ef19e008f5736c4fb2000ec4eadb707e536c61305b1a6761",
     "vautomate_studio/commissioning.py": "d215d0fc527a0cd2bcd8acdb2ba6efe70f9e419529b4a032275cc60c2e4805d4",
     "vautomate_studio/config_flow.py": "4ec3687c9884dbec45ac9d0a3a7bd83377a3db859b776065e435e8c79dfb1741",
@@ -11,12 +10,11 @@
     "vautomate_studio/home_backups.py": "5640fb4b05df16b2b1a881575382ece88624a06139780f6110cee70a2293b60a",
     "vautomate_studio/household.py": "2dfa37f91bec5db5d3145c5a59f07c2ecb2af64ebad45548d81e5e96d4ab3712",
     "vautomate_studio/manifest.json": "f2f5c5b4d1083f5513658d610731e51e9038b2aa270c167932fb3bd89ce380d6",
-    "vautomate_studio/rules.py": "14bc9642f15baf931f9d800a783bd3d24175d64c5f67833aa16a15880915e6e3",
     "vautomate_studio/rule_runtime.py": "b081b662a21efd2d53c84f0d1800ab9efc0ae697035f33ff4d20baba0245ea1b",
     "vautomate_studio/rule_store.py": "b177fd05090f331ff9674f0ebff6621dd7a902862ab74ce53076e53ba8700fdc",
     "vautomate_studio/rule_templates.py": "daf44c8c3eda37322f2ddf9d4536c2ca2c20abc0e69629e9f16853bd05da9069",
+    "vautomate_studio/rules.py": "14bc9642f15baf931f9d800a783bd3d24175d64c5f67833aa16a15880915e6e3",
     "vautomate_studio/strings.json": "098aa2c85b24dc826092dc0139445f0e0a1aff932eba8db9d1e71aa594ce46d9",
-    "vautomate_studio/__init__.py": "3404299f3d14735c550891ee2f0a3b7ac1c66dd88fd101c90eb116dd8d9b69d9",
     "vautomate_studio/translations/en.json": "098aa2c85b24dc826092dc0139445f0e0a1aff932eba8db9d1e71aa594ce46d9",
     "vautomate_studio/www/app.js": "88686cf691d81f229bc5314f57601c88e26d4031ca0e76e670887b827b5d319d",
     "vautomate_studio/www/automations.js": "c188368205ce3781f0c2c8988fafb14826d30988df6899fa595eeb56014420e6",
@@ -28,5 +26,7 @@
     "vautomate_studio/www/onboarding.js": "3c4d8de7a19850848ce7dbe06a834934d61f2e695b25de728eee25f32209e8d2",
     "vautomate_studio/www/studio.css": "d7d57a409609f0d34b85b0d5352d6d22f0166dfbc5d556e4b77b7e4b5e58cec3"
   },
-  "manual_install_only": true
+  "manual_install_only": true,
+  "production_ready": false,
+  "version": "0.4.0-alpha.3"
 }
