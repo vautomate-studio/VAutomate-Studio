@@ -8,7 +8,7 @@
     "vautomate_studio/engine.py": "9469d2c341fb674536bcc6292bf64335e89b9d01111707fc54f156789ed361de",
     "vautomate_studio/ha_backups.py": "8d74cf8b536372505926db9728120aa8f70d1168ac723f49110fe76ce6d5dc94",
     "vautomate_studio/home_backups.py": "5640fb4b05df16b2b1a881575382ece88624a06139780f6110cee70a2293b60a",
-    "vautomate_studio/manifest.json": "a8424649d24e27586e96654760524505496fa27f9e03cc5cfb8e35d99482b4f7",
+    "vautomate_studio/manifest.json": "d5ab1ab705d30298d15e0602bb310576ed721aaa9bfad094472b2b3541dd4549",
     "vautomate_studio/rules.py": "14bc9642f15baf931f9d800a783bd3d24175d64c5f67833aa16a15880915e6e3",
     "vautomate_studio/rule_runtime.py": "b081b662a21efd2d53c84f0d1800ab9efc0ae697035f33ff4d20baba0245ea1b",
     "vautomate_studio/rule_store.py": "b177fd05090f331ff9674f0ebff6621dd7a902862ab74ce53076e53ba8700fdc",

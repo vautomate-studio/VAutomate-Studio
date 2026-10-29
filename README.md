@@ -2,7 +2,7 @@
 
 A VAutomate frontend and scoped service for one independent Home Assistant server per home, with a separate Android customer app and commissioning installer.
 
-**Development version 0.4.0-alpha.1. Not certified for paying-customer deployment.** Production installation remains blocked by acceptance checks. The personal VAutomate application and existing household configuration are separate.
+**Development version 0.4.0-alpha.2. Not certified for paying-customer deployment.** Production installation remains blocked by acceptance checks. The personal VAutomate application and existing household configuration are separate.
 
 ## Product
 
@@ -16,6 +16,7 @@ A VAutomate frontend and scoped service for one independent Home Assistant serve
 - Branded first-owner creation on preloaded homes, deliberate setup acknowledgement and server-side session revocation.
 - Manual HAOS installer, existing-code preservation, configuration checks and exact running-version confirmation.
 - Local installation inventory for many independent homes; no remote support or cloud control enabled by default.
+- Administrator-only encrypted backups, independent streaming downloads, archive import and reviewed restoration. [Recovery workflow and test scope](docs/recovery.md).
 
 ## Repository
 
@@ -61,7 +62,7 @@ A public one-click customer installation link is not live. This private source r
 
 ## What remains before customer release
 
-Fresh Core first-owner creation and a missing-entry installation on the HAOS lab passed for this alpha. A completely fresh HAOS factory-image installation remains unverified. Invitations/account recovery, guided device pairing and replacement, approved physical hardware, live cameras, this app identity's notifications, verified backup restoration, complete manual-update enforcement, restricted customer authorization, security/licensing review and signed immutable release distribution remain unfinished or unverified.
+Fresh Core first-owner creation, missing-entry installation and a real encrypted-backup restore on the synthetic HAOS lab passed. A completely fresh HAOS factory-image installation and replacement-gateway disaster recovery remain unverified. Invitations/account recovery, guided device pairing and replacement, approved physical hardware, live cameras, this app identity's notifications, complete manual-update enforcement, restricted customer authorization, security/licensing review and signed immutable release distribution remain unfinished or unverified.
 
 Earlier Core 2026.9.4/2026.10.2 synthetic compatibility results and the dev.3 full HAOS lab results are historical evidence with their own scopes. They do not certify all Core versions, physical devices or this new source version. Read the [commercial status](installer/COMMERCIAL-STATUS.md) and [acceptance plan](docs/acceptance.md).
 

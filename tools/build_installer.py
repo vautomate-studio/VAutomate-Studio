@@ -11,6 +11,11 @@ files={}
 for file in source.rglob('*'):
     if not file.is_file() or '__pycache__' in file.parts or file.suffix=='.pyc':continue
     if file.is_symlink():raise ValueError('Linked source file')
+    # Git's declared text format and the Linux runtime both use LF. Normalize
+    # before hashing so a Windows build verifies after a clean Git checkout.
+    if file.suffix in {'.py','.json','.js','.html','.css','.svg'}:
+        content=file.read_bytes()
+        if b'\r\n' in content:file.write_bytes(content.replace(b'\r\n',b'\n'))
     relative=file.relative_to(source)
     destination=payload/relative;destination.parent.mkdir(parents=True,exist_ok=True)
     shutil.copyfile(file,destination)
