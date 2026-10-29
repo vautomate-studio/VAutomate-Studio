@@ -18,6 +18,8 @@ The root `repository.yaml` and nested `installer/vautomate_installer/config.yaml
 
 This repository starts at **0.3.0-dev.4**. Previously delivered dev.3 APKs/kits and hosted RC4 releases are unchanged. Historical evidence records keep their actual versions. No GitHub Actions run is claimed until the workflow has executed remotely.
 
+The current **0.4.0-alpha.1** development source adds branded first-owner onboarding, current Core setup identities, server-side sign-out revocation and installer interruption recovery. [First-home evidence](first-home-onboarding.md) records the exact lab scope. Work is tracked in the repository's installation, device workflows, recovery, operations and production-acceptance milestones; an open physical/distribution gate is never counted as certified merely because software tests pass.
+
 The new source also normalizes a mixed Windows/UTF-8 automation-editor file and verifies that Android, browser, service and installer assets agree. This is a source change, not an automatically installed customer update.
 
 ## Ownership and publication

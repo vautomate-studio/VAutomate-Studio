@@ -18,9 +18,13 @@ for file in source.rglob('*'):
 for file in payload.rglob('*'):
     if file.is_file() and 'vautomate_studio/'+file.relative_to(payload).as_posix() not in files:
         raise ValueError('Unexpected old payload file; review it before rebuilding')
-manifest={'version':'0.3.0-dev.4','production_ready':False,'files':files,'manual_install_only':True}
+release=json.loads((project/'release.json').read_text())
+if release['production_ready']:
+    import subprocess,sys
+    subprocess.run([sys.executable,str(project/'tools/check_release.py')],check=True)
+manifest={'version':release['version'],'production_ready':release['production_ready'],'files':files,'manual_install_only':True}
 (app/'payload.json').write_text(json.dumps(manifest,indent=2),encoding='utf-8')
-output=project/'dist/VAutomate-Commissioning-Kit-0.3.0-dev.4.zip'
+output=project/'dist'/('VAutomate-Commissioning-Kit-'+release['version']+'.zip')
 output.parent.mkdir(exist_ok=True)
 with zipfile.ZipFile(output,'w',zipfile.ZIP_DEFLATED) as archive:
     for file in (project/'installer').rglob('*'):

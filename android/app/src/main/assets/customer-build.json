@@ -1,7 +1,7 @@
 {
   "edition": "Studio Customer Development",
   "api_version": 1,
-  "version": "0.3.0-dev.4",
+  "version": "0.4.0-alpha.1",
   "production_certified": false,
   "files": 8
 }

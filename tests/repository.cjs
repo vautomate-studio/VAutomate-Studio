@@ -8,4 +8,6 @@ const synthetic='gh'+'p_'+'a'.repeat(36);
 try{fs.writeFileSync(file,synthetic);const result=verify();assert.equal(result.status,1);assert(result.stdout.includes('private or generated file'));assert(!result.stdout.includes(synthetic),'Private values must not appear in reports')}finally{fs.unlinkSync(file)}
 const client=path.join(root,'android/app/src/main/assets/vautomate-customer/client.js'),original=fs.readFileSync(client);
 try{fs.appendFileSync(client,'\n/* synthetic stale asset */\n');const result=verify();assert.equal(result.status,1);assert(result.stdout.includes('stale frontend copy'))}finally{fs.writeFileSync(client,original)}
-assert.equal(verify().status,0);console.log('PASS: clean repository, private-file rejection with redacted output, and stale-asset detection.');
+const app=path.join(root,'frontend/app.js'),appOriginal=fs.readFileSync(app);
+try{fs.appendFileSync(app,'\n/* '+String.fromCharCode(0xc2,0xb7)+' */\n');const result=verify();assert.equal(result.status,1);assert(result.stdout.includes('corrupted display characters'))}finally{fs.writeFileSync(app,appOriginal)}
+assert.equal(verify().status,0);console.log('PASS: clean repository, private-file rejection with redacted output, stale-asset and corrupted-character detection.');

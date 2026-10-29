@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 from pathlib import Path, PurePosixPath
 import shutil
 import time
@@ -10,11 +11,51 @@ import urllib.request
 import uuid
 
 DOMAIN = 'vautomate_studio'
+FLOW_ID = re.compile(r'(?:[a-f0-9]{32}|[0-9A-HJKMNP-TV-Z]{26})')
 SUPPORTED = {'2026.9.4', '2026.10.2', '2026.10.4'}
 
 
 class InstallError(Exception):
     pass
+
+
+class InstallLock:
+    """OS-backed lock releases after a crash; its marker file is deliberately retained."""
+    def __init__(self,path):self.path=Path(path);self.stream=None
+    def acquire(self):
+        if self.path.is_symlink():raise InstallError('The installer lock path needs review.')
+        try:
+            self.stream=self.path.open('x+b');created=True
+        except FileExistsError:
+            self.stream=self.path.open('r+b');created=False
+        try:
+            if created:
+                self.stream.write(b'V');self.stream.flush()
+            else:
+                self.stream.seek(0)
+                if self.stream.read(2)!=b'V':raise InstallError('A legacy or unrecognized installation lock needs installer review before continuing.')
+            self.stream.seek(0)
+            if os.name=='nt':
+                import msvcrt
+                msvcrt.locking(self.stream.fileno(),msvcrt.LK_NBLCK,1)
+            else:
+                import fcntl
+                fcntl.flock(self.stream.fileno(),fcntl.LOCK_EX|fcntl.LOCK_NB)
+        except Exception as error:
+            self.stream.close();self.stream=None
+            if isinstance(error,InstallError):raise
+            raise InstallError('Another installation is active. Wait for it to finish.') from None
+    def release(self):
+        if self.stream is None:return
+        try:
+            self.stream.seek(0)
+            if os.name=='nt':
+                import msvcrt
+                msvcrt.locking(self.stream.fileno(),msvcrt.LK_UNLCK,1)
+            else:
+                import fcntl
+                fcntl.flock(self.stream.fileno(),fcntl.LOCK_UN)
+        finally:self.stream.close();self.stream=None
 
 
 def atomic_json(path, value):
@@ -65,13 +106,13 @@ class Supervisor:
         allowed = {('GET','/core/info'), ('POST','/core/check'), ('POST','/core/restart'), ('GET','/core/api/vautomate_studio/v1/health'),
                    ('GET','/core/api/config/config_entries/entry'), ('POST','/core/api/config/config_entries/flow')}
         flow = route.removeprefix('/core/api/config/config_entries/flow/')
-        if (method,route) not in allowed and not (method == 'POST' and route.startswith('/core/api/config/config_entries/flow/') and len(flow) == 32 and all(c in '0123456789abcdef' for c in flow)):
+        if (method,route) not in allowed and not (method == 'POST' and route.startswith('/core/api/config/config_entries/flow/') and FLOW_ID.fullmatch(flow)):
             raise InstallError('The installer refused an unsupported operation.')
         request = urllib.request.Request('http://supervisor'+route, method=method,
             headers={'Authorization':'Bearer '+self.token,'Content-Type':'application/json'},
             data=json.dumps(body).encode() if body is not None else None)
         try:
-            with self.opener.open(request, timeout=180) as response:
+            with self.opener.open(request, timeout=120 if route in {'/core/check','/core/restart'} else 15) as response:
                 value = json.load(response)
         except Exception:
             raise InstallError('The home server did not confirm the installer request.') from None
@@ -86,9 +127,9 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
 
 
 class Installer:
-    def __init__(self, bundle, config, data, api, *, sleep=time.sleep):
+    def __init__(self, bundle, config, data, api, *, sleep=time.sleep,clock=time.monotonic):
         self.bundle,self.config,self.data = map(Path,(bundle,config,data))
-        self.api,self.sleep = api,sleep
+        self.api,self.sleep,self.clock = api,sleep,clock
         self.record = {}
 
     def note(self, phase, **values):
@@ -103,24 +144,26 @@ class Installer:
         return [e for e in entries if e.get('domain') == DOMAIN]
 
     def activate(self):
+        deadline=self.clock()+180
         for attempt in range(90):
             try:
                 entries = self.entries()
                 break
             except InstallError:
-                if attempt == 89:
+                if attempt == 89 or self.clock()>=deadline:
                     raise
                 self.sleep(2)
         if not entries:
             flow = self.api.request('POST','/core/api/config/config_entries/flow',{'handler':DOMAIN,'show_advanced_options':False})
             if flow.get('type') == 'form' and flow.get('step_id') == 'user':
                 flow_id = flow.get('flow_id','')
-                if len(flow_id) != 32 or not all(c in '0123456789abcdef' for c in flow_id):
+                if not isinstance(flow_id,str) or not FLOW_ID.fullmatch(flow_id):
                     raise InstallError('The server returned an invalid setup identity.')
                 flow = self.api.request('POST','/core/api/config/config_entries/flow/'+flow_id,{})
-            if flow.get('type') != 'create_entry':
+            if flow.get('type') != 'create_entry' and not (flow.get('type')=='abort' and flow.get('reason') in {'already_configured','already_in_progress'}):
                 raise InstallError('Studio setup needs installer attention. No extra entry was created.')
         for _ in range(30):
+            if self.clock()>=deadline:break
             entries = self.entries()
             if len(entries) == 1 and entries[0].get('state') == 'loaded':
                 return
@@ -141,14 +184,16 @@ class Installer:
         if self.data.is_symlink():
             raise InstallError('The installer data folder is linked.')
         self.data.mkdir(parents=True,exist_ok=True)
+        prior=None
+        journal=self.data/'install-status.json'
+        if journal.exists():
+            if journal.is_symlink():raise InstallError('The installer journal path needs review.')
+            try:prior=json.loads(journal.read_text())
+            except (ValueError,OSError):raise InstallError('The previous installation record needs review before continuing.') from None
         self.record = {'release':manifest['version'],'production_ready':manifest['production_ready'],
                        'core_version':info['version'],'run_id':uuid.uuid4().hex,'started_at':int(time.time())}
-        lock = self.data/'install.lock'
-        try:
-            descriptor = os.open(lock,os.O_CREAT|os.O_EXCL|os.O_WRONLY,0o600)
-        except FileExistsError:
-            raise InstallError('Another installation may be active. Review its status before removing the installer lock.') from None
-        os.close(descriptor)
+        if prior and prior.get('phase')!='ready_for_onboarding':self.record['recovery_from']=prior.get('recovery_from') or prior.get('run_id')
+        guard=InstallLock(self.data/'install.lock');guard.acquire()
         try:
             self.note('checking_home')
             self.api.request('POST','/core/check')
@@ -158,6 +203,14 @@ class Installer:
             parent.mkdir(exist_ok=True)
             target = parent/DOMAIN
             reject_links(target)
+            if prior and prior.get('phase')!='ready_for_onboarding':
+                old_id=prior.get('recovery_from') or prior.get('run_id')
+                if not isinstance(old_id,str) or not re.fullmatch('[a-f0-9]{32}',old_id):raise InstallError('The interrupted installation identity needs review.')
+                old_previous=self.config/('.studio_previous_'+old_id)
+                if not target.exists() and old_previous.is_dir():
+                    reject_links(old_previous)
+                    self.note('recovering_previous_source')
+                    old_previous.rename(target)
             previous = self.config/('.studio_previous_'+self.record['run_id'])
             stage = self.config/('.studio_stage_'+self.record['run_id'])
             source = self.bundle/'payload'/DOMAIN
@@ -191,6 +244,17 @@ class Installer:
                 except InstallError:
                     # A timeout cannot prove that restart failed. Reconcile by reading.
                     self.note('waiting_for_core')
+            else:
+                try:
+                    current=self.api.request('GET','/core/api/vautomate_studio/v1/health')
+                    running=current.get('initialized') is True and current.get('bridge_version')==manifest['version']
+                except InstallError:running=False
+                if not running:
+                    # An earlier interrupted copy may have installed files without a restart.
+                    # A new explicit Start may request one restart; there is no restart loop.
+                    self.note('restarting_pending_source')
+                    try:self.api.request('POST','/core/restart')
+                    except InstallError:self.note('waiting_for_core')
             self.note('connecting_studio')
             self.activate()
             health = self.api.request('GET','/core/api/vautomate_studio/v1/health')
@@ -204,7 +268,7 @@ class Installer:
             self.note('needs_installer_attention')
             raise
         finally:
-            lock.unlink()
+            guard.release()
 
 
 def main():

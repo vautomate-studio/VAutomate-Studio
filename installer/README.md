@@ -1,6 +1,6 @@
 # VAutomate commissioning installer
 
-Development version 0.3.0-dev.4. This is not a certified customer release. The bundled service is complete source, not a downloader. Published RC4 artifacts and the personal home are separate.
+Development version 0.4.0-alpha.1. This is not a certified customer release. The bundled service is complete source, not a downloader. Published RC4 artifacts and the personal home are separate.
 
 ## Intended installation
 
@@ -11,7 +11,9 @@ Development version 0.3.0-dev.4. This is not a certified customer release. The b
 5. Open `/vautomate-studio/index.html`, sign in with the home account, and choose **Set up this home**. Name the home, suggest rooms from existing assignments or add them manually, select devices, choose Home buttons, review and publish. Suggestions do not pair, rename, move or operate devices.
 6. Home Care → Installation status provides a local status record. Use the fleet register to track many independent installations. No phone credentials or remote-access tokens are part of the record.
 
-The first HAOS owner setup remains an installer task. Zigbee/Matter pairing, customer invitations/recovery, physical-device certification, remote support consent, notification delivery, signed release images and disaster recovery are separate unfinished release gates. This kit does not make them available.
+On an empty Core configuration with Studio preloaded, `/local/vautomate-setup/index.html` can create the first owner and finish platform setup inside VAutomate. This path was tested using a disposable fresh Core configuration on the existing HAOS lab. Initial HAOS provisioning and preloading the package remain installer tasks; a factory image and full fresh-HAOS acceptance have not been delivered. See [first-home evidence](../docs/first-home-onboarding.md).
+
+Zigbee/Matter pairing, customer invitations/recovery, physical-device certification, remote support consent, notification delivery, signed release images and disaster recovery are separate unfinished release gates. This kit does not make them available.
 
 ## Local lab preparation
 
@@ -23,7 +25,7 @@ The app cannot run at boot. It has no device access, Docker socket, host network
 
 Before restart, a failed configuration check restores the previous component directory automatically. Existing Studio source is also copied under the installer's private `component-backups` folder. These source copies are **not full Home Assistant backups**. After an uncertain restart or activation failure the installer records `needs_installer_attention`; it does not loop restarts or roll back live configuration automatically. Repeating an unchanged successful installation does not restart Core or create another integration entry.
 
-An interrupted installation leaves a lock for installer review. Inspect the private status and server state before removing the lock; do not clear it while installation is active. Restore a full home from the independent backup when necessary. Actual disaster restoration must be tested separately.
+The OS-backed installation lock is released when the process exits. Its `V` marker remains intentionally; never delete it during an active installation. An explicit retry reads the prior journal and can recover its own interrupted directory rename. Legacy or unrecognized locks fail for installer review. If copied source was never started, an explicit retry can request one restart and reconcile the running version. There is no automatic restart loop. Restore a full home from the independent backup when necessary; actual disaster restoration must be tested separately.
 
 ## Local inventory
 

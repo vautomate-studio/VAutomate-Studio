@@ -27,8 +27,8 @@ class API:
                 assert all(not item.name.startswith('.') for item in self.component_parent.iterdir()), 'Temporary manifests must not enter HA component discovery'
             return {}
         if route.endswith('/entry'):return [{'domain':'vautomate_studio','state':'loaded'}] if self.installed else []
-        if route.endswith('/flow'):return {'type':'form','step_id':'user','flow_id':'a'*32}
-        if route.endswith('/flow/'+'a'*32):self.installed=True;return {'type':'create_entry'}
+        if route.endswith('/flow'):return {'type':'form','step_id':'user','flow_id':getattr(self,'flow_id','a'*32)}
+        if route.endswith('/flow/'+getattr(self,'flow_id','a'*32)):self.installed=True;return {'type':'create_entry'}
         raise AssertionError(route)
 
 
@@ -92,6 +92,43 @@ class InstallerTest(unittest.TestCase):
         with self.assertRaises(module.InstallError):self.run_install()
         self.assertTrue((data/'install.lock').exists())
         self.assertFalse(any(method=='POST' for method,_,_ in self.api.calls))
+    def test_current_core_ulid_setup_flow(self):
+        self.api.flow_id='0'*26
+        self.assertEqual(self.run_install()['phase'],'ready_for_onboarding')
+
+    def test_os_lock_rejects_a_concurrent_installer(self):
+        data=self.root/'private';data.mkdir()
+        guard=module.InstallLock(data/'install.lock');guard.acquire()
+        try:
+            with self.assertRaises(module.InstallError):self.run_install()
+            self.assertFalse(any(method=='POST' for method,_,_ in self.api.calls))
+        finally:guard.release()
+
+    def test_released_crash_marker_does_not_block_retry(self):
+        data=self.root/'private';data.mkdir();(data/'install.lock').write_bytes(b'V')
+        self.assertEqual(self.run_install()['phase'],'ready_for_onboarding')
+
+    def test_interrupted_rename_restores_only_own_prior_component(self):
+        data=self.root/'private';data.mkdir();old_id='b'*32
+        (data/'install-status.json').write_text(json.dumps({'phase':'installing_studio','run_id':old_id}))
+        previous=self.config/('.studio_previous_'+old_id);previous.mkdir();(previous/'__init__.py').write_text('RECOVERED_OLD_CODE')
+        result=self.run_install()
+        backup=data/'component-backups'/result['component_backup']/'__init__.py'
+        self.assertEqual(backup.read_text(),'RECOVERED_OLD_CODE')
+        self.assertEqual((self.config/'configuration.yaml').read_text(),'ORIGINAL HOME CONFIG')
+
+    def test_pending_source_restart_is_bounded_to_one_request(self):
+        target=self.config/'custom_components/vautomate_studio';target.mkdir(parents=True);(target/'__init__.py').write_text('NEW_COMPONENT')
+        self.api.installed=True;self.api.running_version='old-release'
+        with self.assertRaises(module.InstallError):self.run_install()
+        self.assertEqual(sum(route=='/core/restart' for _,route,_ in self.api.calls),1)
+
+    def test_recovery_identity_cannot_select_arbitrary_paths(self):
+        data=self.root/'private';data.mkdir()
+        (data/'install-status.json').write_text(json.dumps({'phase':'installing_studio','run_id':'../../configuration.yaml'}))
+        with self.assertRaises(module.InstallError):self.run_install()
+        self.assertEqual((self.config/'configuration.yaml').read_text(),'ORIGINAL HOME CONFIG')
+
     def test_old_runtime_cannot_be_mistaken_for_success(self):
         self.api.running_version='old-release'
         with self.assertRaises(module.InstallError):self.run_install()

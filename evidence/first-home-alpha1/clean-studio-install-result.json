@@ -1,0 +1,15 @@
+{
+  "status": "passed",
+  "checked_at": "2026-10-29T05:29:51.166Z",
+  "studio": "0.4.0-alpha.1",
+  "core": "2026.10.4",
+  "scope": "Real HAOS missing-Studio-entry installation on existing synthetic lab; not a fresh HAOS image or physical-device certification",
+  "checks": [
+    "existing synthetic Studio store independently copied",
+    "only own entry/store removed",
+    "installer activates missing entry with current Core setup identity",
+    "exact alpha health, one loaded entry, read-only and empty defaults",
+    "original synthetic shared layout and paused rules restored"
+  ],
+  "personal_server_changed": false
+}

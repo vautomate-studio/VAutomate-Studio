@@ -22,8 +22,11 @@ for file in root.rglob('*'):
     if any(re.search(pattern,content) for pattern in patterns):errors.append(str(relative)+': possible private value; review locally')
 
 frontend=root/'frontend'
+for file in frontend.glob('*'):
+    if file.suffix in {'.js','.html','.css'} and re.search(r'\u00c2[\u0080-\u00bf]|\u00e2\u20ac|\u00c3\u0192',file.read_text(encoding='utf-8')):
+        errors.append(file.name+': corrupted display characters')
 for folder in [root/'custom_components/vautomate_studio/www',root/'android/app/src/main/assets/vautomate-customer']:
-    for name in ['app.js','client.js','automations.js','index.html','studio.css','brand-long.svg','brand-short.svg']:
+    for name in ['app.js','client.js','onboarding.js','automations.js','index.html','studio.css','brand-long.svg','brand-short.svg']:
         if (folder/name).read_bytes()!=(frontend/name).read_bytes():errors.append(str(folder.relative_to(root)/name)+': stale frontend copy')
 
 bundle=root/'installer/vautomate_installer'

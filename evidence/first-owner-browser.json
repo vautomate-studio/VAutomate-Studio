@@ -1,0 +1,12 @@
+{
+  "status": "passed",
+  "scope": "Inert local onboarding API and WebSocket fixture; not real account/hardware certification",
+  "checks": [
+    "inert first-owner detection",
+    "explicit acknowledgement",
+    "password mismatch creates nothing",
+    "owner creation and setup stay in VAutomate",
+    "password fields cleared",
+    "phone layout and no page errors"
+  ]
+}

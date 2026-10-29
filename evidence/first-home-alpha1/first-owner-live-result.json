@@ -1,0 +1,20 @@
+{
+  "status": "passed",
+  "checked_at": "2026-10-28T21:42:15.753Z",
+  "source_version": "0.4.0-alpha.1",
+  "core": "2026.10.4",
+  "environment": "Fresh Core container on existing HAOS lab, not a fresh HAOS/Supervisor installation",
+  "first_owner_created_in_this_run": true,
+  "checks": [
+    "VAutomate welcome page available before owner creation",
+    "real first-owner/setup API and preinstalled Studio activation",
+    "exact alpha service loaded with read-only defaults",
+    "existing owner cannot be overwritten",
+    "one Studio entry after activation",
+    "reviewed shared room publication and actual member view",
+    "actual member denied administrative operations",
+    "actual refresh token rejected after sign-out"
+  ],
+  "personal_server_changed": false,
+  "scope": "Disposable fresh Core configuration on HAOS lab; no physical-device or full fresh-HAOS/Supervisor certification"
+}

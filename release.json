@@ -1,8 +1,8 @@
 {
   "product": "VAutomate Studio",
-  "version": "0.3.0-dev.4",
+  "version": "0.4.0-alpha.1",
   "api_version": 1,
-  "channel": "development",
+  "channel": "alpha",
   "production_ready": false,
   "source_review_baseline": "Home Assistant Core 2026.10.2 and script/sun API 2026.10.4",
   "certified_core_versions": [],
@@ -68,18 +68,28 @@
       ]
     },
     "commercial_installer_and_first_home": {
-      "status": "lab_install_and_repeat_passed_clean_server_pending",
+      "status": "fresh_core_first_owner_and_haos_missing_entry_passed_factory_image_pending",
       "evidence": null,
       "partial_evidence": [
         "evidence/commissioning-dev3/commissioning-result.json",
-        "evidence/commissioning-dev3/browser-commissioning-result.json"
+        "evidence/commissioning-dev3/browser-commissioning-result.json",
+        "evidence/first-home-alpha1/first-owner-live-result.json",
+        "evidence/first-home-alpha1/clean-studio-install-result.json",
+        "evidence/first-home-alpha1/commissioning-result.json",
+        "evidence/first-home-alpha1/browser-commissioning-result.json",
+        "evidence/first-owner-browser.json"
       ]
     }
   },
   "unreleased_changes": [
     "Manual bundled HAOS installer with checksum verification, preservation and restart reconciliation",
     "Admin room suggestions, installation health record and local multi-home inventory",
-    "Connection watchdog and bounded reconnection; no command replay"
+    "Connection watchdog and bounded reconnection; no command replay",
+    "Branded first-owner onboarding and preinstalled-service activation; explicit new-home acknowledgement",
+    "Correct server-side token revocation on sign-out",
+    "Current Core ULID setup-flow compatibility",
+    "OS-backed installer lock and scoped interrupted-install recovery",
+    "Corrected display encoding and regression guard"
   ],
   "candidate_changes": [
     "Seven entity-bound occupancy and home-mode templates with explicit approval",
