@@ -1,0 +1,49 @@
+{
+  "repository": "https://github.com/vautomate-studio/VAutomate-Studio",
+  "private": true,
+  "run": {
+    "id": 40824001486,
+    "url": "https://github.com/vautomate-studio/VAutomate-Studio/actions/runs/40824001486",
+    "status": "completed",
+    "conclusion": "success",
+    "head_sha": "22ae6203d48f69c9eb58ab77fa07edd698fa4c36",
+    "jobs": [
+      {
+        "name": "product",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/vautomate-studio/VAutomate-Studio/actions/runs/40824001486/job/123282727322",
+        "failed_steps": []
+      },
+      {
+        "name": "core-contract (2026.9.4)",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/vautomate-studio/VAutomate-Studio/actions/runs/40824001486/job/123282727530",
+        "failed_steps": []
+      },
+      {
+        "name": "core-contract (2026.10.2)",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/vautomate-studio/VAutomate-Studio/actions/runs/40824001486/job/123282727551",
+        "failed_steps": []
+      },
+      {
+        "name": "core-contract (2026.10.4)",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/vautomate-studio/VAutomate-Studio/actions/runs/40824001486/job/123282727598",
+        "failed_steps": []
+      },
+      {
+        "name": "release",
+        "status": "completed",
+        "conclusion": "skipped",
+        "url": "https://github.com/vautomate-studio/VAutomate-Studio/actions/runs/40824001486/job/123283111675",
+        "failed_steps": []
+      }
+    ]
+  },
+  "scope": "Product suite and native Core contracts; not physical or production acceptance"
+}

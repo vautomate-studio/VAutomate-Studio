@@ -1,0 +1,19 @@
+{
+  "status": "build_and_signature_verified",
+  "version": "0.4.0-alpha.1",
+  "package": "co.vautomate.customer",
+  "version_code": 7,
+  "min_sdk": 31,
+  "target_sdk": 36,
+  "sha256": "8a942e21b5deddf5ea21b3519140f80ffe16a7ad28c4c3d05b262991801f47e0",
+  "signer_sha256": "d445af7e206054b672a690f54a19cbc9d9d1864e0eb5626ed9255f798d714aec",
+  "checks": [
+    "established Studio identity; no new key generated",
+    "APK v3 signature verification",
+    "zip alignment verification",
+    "all eight canonical frontend assets match APK",
+    "manifest package/version identity"
+  ],
+  "physical_device_tests": "not_run",
+  "production_certified": false
+}
