@@ -1,0 +1,11 @@
+{
+  "version": "0.4.0-alpha.4",
+  "version_code": 10,
+  "package": "co.vautomate.customer",
+  "sha256": "d5db2f1ed8b61dd6c340248afb6c687d86f1b8de2e5545fb39450e8ec6b75495",
+  "signature_verified": true,
+  "zip_alignment_verified": true,
+  "canonical_frontend_assets": 8,
+  "physical_android_acceptance": false,
+  "production_certified": false
+}

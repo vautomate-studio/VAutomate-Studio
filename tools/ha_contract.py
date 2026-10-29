@@ -29,5 +29,11 @@ assert GROUP_ID_READ_ONLY=='system-read-only'
 assert {'group_ids','local_only'} <= set(inspect.signature(AuthManager.async_create_user).parameters)
 assert {'is_active','group_ids','local_only'} <= set(inspect.signature(AuthManager.async_update_user).parameters)
 assert callable(AuthManager.async_remove_refresh_token) and callable(HassAuthProvider.async_change_password) and callable(async_get_provider)
+from homeassistant.components import mqtt
+from homeassistant.helpers import device_registry,entity_registry
+assert callable(mqtt.is_connected) and callable(mqtt.async_subscribe) and callable(mqtt.async_publish)
+assert 'retain' in inspect.signature(mqtt.async_publish).parameters
+assert callable(device_registry.async_get) and callable(entity_registry.async_get)
+assert bridge.HAPairing and bridge.Pairing
 print('API import and feature contract passed on Core',__version__)
 print('This is a source/API smoke test. Full HAOS, update, restore and device tests remain separate gates.')

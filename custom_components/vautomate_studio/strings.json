@@ -1,1 +1,25 @@
-{"config":{"step":{"user":{"title":"VAutomate Studio","description":"Set up the separate customer service. Existing dashboards and configuration are kept. This release starts read-only; certification is pending."}},"abort":{"already_configured":"VAutomate Studio is already configured for this home."}},"options":{"step":{"init":{"title":"Evaluation controls","description":"Enable only on an isolated commissioning/test server. Hardware certification and restore testing are pending. This changes no device by itself.","data":{"allow_evaluation_controls":"Allow device commands during evaluation"}}}}}
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "VAutomate Studio",
+        "description": "Set up the separate customer service. Existing dashboards and configuration are kept. This release starts read-only; certification is pending."
+      }
+    },
+    "abort": {
+      "already_configured": "VAutomate Studio is already configured for this home."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Evaluation controls",
+        "description": "Enable only on an isolated commissioning/test server. Hardware certification and restore testing are pending. This changes no device by itself.",
+        "data": {
+          "allow_evaluation_controls": "Allow device commands during evaluation",
+          "zigbee2mqtt_base_topic": "Zigbee2MQTT base topic (installer)"
+        }
+      }
+    }
+  }
+}

@@ -35,6 +35,8 @@ from .home_backups import HomeBackups,backup_id
 from .ha_backups import HABackups
 from .household import Household
 from .ha_household import HAHousehold
+from .pairing import Pairing
+from .ha_pairing import HAPairing
 
 DOMAIN="vautomate_studio"
 _LOGGER=logging.getLogger(__name__)
@@ -217,6 +219,13 @@ async def async_setup_entry(hass,entry):
         engine.document["installation_id"]=engine.installation_id
         await store.async_save(engine.document)
     hass.data[DOMAIN]={"engine":engine,"entry":entry,"last_tick":None,"backups":HomeBackups(HABackups(hass)),"household":Household(HAHousehold(hass))}
+    pairing=Pairing(engine,HAPairing(hass,entry))
+    try:
+        await pairing.initialize()
+        hass.data[DOMAIN]["pairing"]=pairing
+    except Exception:
+        # Keep device controls and recovery available if the separate journal is damaged.
+        _LOGGER.error("VAutomate pairing records need recovery; the stored record was kept")
     if not hass.data.get(DOMAIN+"_registered"):
         hass.http.register_view(StudioHealthView)
         hass.http.register_view(StudioBackupExportView)
@@ -283,6 +292,7 @@ async def _reload(hass,entry):await hass.config_entries.async_reload(entry.entry
 async def async_unload_entry(hass,entry):
     current=hass.data.get(DOMAIN)
     if current:await current["runtime"].close()
+    if current and "pairing" in current:await current["pairing"].adapter.close()
     hass.services.async_remove(DOMAIN,"execute_step")
     hass.data.pop(DOMAIN,None)
     return True
@@ -313,6 +323,15 @@ async def studio_request(hass,connection,msg):
         elif op=="accounts/preview":result=await hass.data[DOMAIN]["household"].preview(actor,payload)
         elif op=="accounts/approve":result=await hass.data[DOMAIN]["household"].approve(actor,payload)
         elif op=="accounts/password":result=await hass.data[DOMAIN]["household"].own_password(actor,payload)
+        elif op in {"pairing/status","pairing/preview","pairing/begin","pairing/cancel","pairing/assign"}:
+            engine.admin(actor)
+            pairing=hass.data[DOMAIN].get("pairing")
+            if pairing is None:raise ProductError("storage_attention","Pairing needs installer recovery. Your other home controls remain available.")
+            if op=="pairing/status":result=await pairing.status(actor)
+            elif op=="pairing/preview":result=await pairing.preview(actor,payload)
+            elif op=="pairing/begin":result=await pairing.begin(actor,payload)
+            elif op=="pairing/cancel":result=await pairing.cancel(actor,payload)
+            else:result=await pairing.assign(actor,payload)
         elif op=="layout/preview":
             result={"layout":engine.validate_layout(actor,payload.get("layout")),"writes":False}
         elif op=="layout/publish":result=await engine.publish(actor,payload.get("layout"),payload.get("revision"))

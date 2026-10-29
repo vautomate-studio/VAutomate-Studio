@@ -1,6 +1,7 @@
 """Build a VAutomate APK using official JDK/Android SDK tools, without Gradle."""
 from pathlib import Path
 import argparse,subprocess,zipfile,datetime,os,hashlib,json
+import xml.etree.ElementTree as ET
 parser=argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--java-home',type=Path,required=True,help='JDK 17 installation root')
 parser.add_argument('--android-jar',type=Path,required=True,help='SDK Platform 36 android.jar')
@@ -9,12 +10,15 @@ parser.add_argument('--output',type=Path,default=Path('VAutomate-aligned-unsigne
 parser.add_argument('--r8-jar',type=Path,help='Compatible current R8 jar when the SDK bundled D8 predates Kotlin 2.1')
 args=parser.parse_args();project=Path(__file__).resolve().parents[1]
 build=project/'build'/datetime.datetime.now().strftime('%Y%m%d-%H%M%S');build.mkdir(parents=True,exist_ok=True)
+manifest=ET.parse(project/'app/src/main/AndroidManifest.xml').getroot()
+version_code=manifest.attrib['{http://schemas.android.com/apk/res/android}versionCode']
+version_name=manifest.attrib['{http://schemas.android.com/apk/res/android}versionName']
 generated=build/'generated';generated.mkdir();classes=build/'classes';classes.mkdir();dex=build/'dex';dex.mkdir()
 jdk=args.java_home/'bin';android=args.android_jar.resolve();tools=args.build_tools.resolve()
 def exe(folder,name):return folder/(name+'.exe' if (folder/(name+'.exe')).exists() else name)
 def run(values):subprocess.run([str(value) for value in values],check=True)
 run([exe(tools,'aapt2'),'compile','--dir',project/'app/src/main/res','-o',build/'resources.zip'])
-run([exe(tools,'aapt2'),'link','-o',build/'resources.apk','--manifest',project/'app/src/main/AndroidManifest.xml','-I',android,'--java',generated,'--extra-packages','androidx.startup:androidx.tracing','--min-sdk-version','31','--target-sdk-version','36','--version-code','9','--version-name','0.4.0-alpha.3','-A',project/'app/src/main/assets',build/'resources.zip'])
+run([exe(tools,'aapt2'),'link','-o',build/'resources.apk','--manifest',project/'app/src/main/AndroidManifest.xml','-I',android,'--java',generated,'--extra-packages','androidx.startup:androidx.tracing','--min-sdk-version','31','--target-sdk-version','36','--version-code',version_code,'--version-name',version_name,'-A',project/'app/src/main/assets',build/'resources.zip'])
 sources=list((project/'app/src/main/java').rglob('*.java'))+list(generated.rglob('*.java'))
 libraries=sorted((project/'vendor').glob('*.jar'))
 lock=json.loads((project/'vendor/dependencies.json').read_text(encoding='utf-8'))

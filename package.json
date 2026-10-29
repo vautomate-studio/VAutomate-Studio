@@ -1,10 +1,10 @@
 {
   "name": "vautomate-studio-commercial",
-  "version": "0.4.0-alpha.3",
+  "version": "0.4.0-alpha.4",
   "private": true,
   "description": "Isolated VAutomate customer product and compatibility service",
   "scripts": {
-    "test": "node tests/repository.cjs && node tests/client.cjs && node tests/connection.cjs && node tests/onboarding.cjs && node tests/browser.cjs && node tests/onboarding-browser.cjs && node tests/recovery-browser.cjs && node tests/household-browser.cjs",
+    "test": "node tests/repository.cjs && node tests/client.cjs && node tests/connection.cjs && node tests/onboarding.cjs && node tests/browser.cjs && node tests/onboarding-browser.cjs && node tests/recovery-browser.cjs && node tests/household-browser.cjs && node tests/pairing-browser.cjs",
     "test:blueprints": "node tools/test_blueprints.cjs"
   },
   "devDependencies": {

@@ -19,7 +19,7 @@ from .bundles import BUNDLES
 from .rule_store import RuleStore
 
 API_VERSION = 1
-BRIDGE_VERSION = "0.4.0-alpha.3"
+BRIDGE_VERSION = "0.4.0-alpha.4"
 PREFIX = "vautomate_studio/v1/"
 DOMAINS = {"light", "cover", "switch", "fan", "climate", "media_player", "alarm_control_panel", "scene", "input_boolean", "binary_sensor", "sensor", "camera", "person", "weather"}
 INFORMATIONAL = {"binary_sensor", "sensor", "camera", "person", "weather"}
@@ -152,7 +152,7 @@ class StudioEngine(RuleStore):
         return layout
 
     def bootstrap(self, actor):
-        return {"api_version": API_VERSION, "bridge_version": BRIDGE_VERSION, "server_time":self.adapter.now(), "core_version": self.adapter.version, "compatibility": {"status":"evaluation", "certified":False, "message":"This release requires hardware and HAOS acceptance testing."}, "user": {"id": actor.id, "name": actor.name, "role": "administrator" if actor.admin else "member", "can_edit":actor.admin}, "read_only": not self.controls, "revision": self.document["revision"], "layout": self.layout(actor), "entities": self.snapshot(actor), "routines": self.routines(actor), "automations":self.automation_rules(actor), "room_pauses":self.active_room_pauses(actor), "features": {"lights":True,"curtains":True,"security":True,"media":True,"climate":True,"pairing":False,"updates":False,"backup_restore":False,"visual_automations":True,"room_pauses":True}}
+        return {"api_version": API_VERSION, "bridge_version": BRIDGE_VERSION, "server_time":self.adapter.now(), "core_version": self.adapter.version, "compatibility": {"status":"evaluation", "certified":False, "message":"This release requires hardware and HAOS acceptance testing."}, "user": {"id": actor.id, "name": actor.name, "role": "administrator" if actor.admin else "member", "can_edit":actor.admin}, "read_only": not self.controls, "revision": self.document["revision"], "layout": self.layout(actor), "entities": self.snapshot(actor), "routines": self.routines(actor), "automations":self.automation_rules(actor), "room_pauses":self.active_room_pauses(actor), "features": {"lights":True,"curtains":True,"security":True,"media":True,"climate":True,"pairing":actor.admin,"updates":False,"backup_restore":actor.admin,"visual_automations":True,"room_pauses":True}}
 
     def validate_layout(self, actor, value):
         self.admin(actor)

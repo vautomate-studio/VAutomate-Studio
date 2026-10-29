@@ -1,0 +1,16 @@
+{
+  "status": "passed",
+  "scope": "Inert pairing fixture only; no physical radio acceptance",
+  "checks": [
+    "inert review",
+    "readiness required",
+    "poll preserves focus",
+    "device names are text",
+    "explicit room assignment",
+    "explicit close",
+    "next review never reopens",
+    "phone fits",
+    "member isolated",
+    "no browser errors"
+  ]
+}

@@ -22,4 +22,4 @@ class StudioConfigFlow(config_entries.ConfigFlow,domain=DOMAIN):
 class StudioOptionsFlow(config_entries.OptionsFlow):
     async def async_step_init(self,user_input=None):
         if user_input is not None:return self.async_create_entry(title="",data=user_input)
-        return self.async_show_form(step_id="init",data_schema=vol.Schema({vol.Optional("allow_evaluation_controls",default=self.config_entry.options.get("allow_evaluation_controls",False)):bool}))
+        return self.async_show_form(step_id="init",data_schema=vol.Schema({vol.Optional("allow_evaluation_controls",default=self.config_entry.options.get("allow_evaluation_controls",False)):bool,vol.Optional("zigbee2mqtt_base_topic",default=self.config_entry.options.get("zigbee2mqtt_base_topic","zigbee2mqtt")):vol.All(str,vol.Length(min=1,max=100),vol.Match(r"^[A-Za-z0-9_-]+(?:/[A-Za-z0-9_-]+)*$"))}))
