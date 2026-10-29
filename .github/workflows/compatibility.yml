@@ -35,6 +35,7 @@ jobs:
       - run: npm test
       - run: npm run test:blueprints
       - run: python tools/build_installer.py
+      - run: python tools/verify_kit.py
       - run: python tools/verify_repository.py
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:

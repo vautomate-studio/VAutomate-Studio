@@ -8,7 +8,7 @@ payload=app/'payload/vautomate_studio'
 payload.mkdir(parents=True,exist_ok=True)
 source=project/'custom_components/vautomate_studio'
 files={}
-for file in sorted(source.rglob('*')):
+for file in sorted(source.rglob('*'),key=lambda p:p.relative_to(source).as_posix()):
     if not file.is_file() or '__pycache__' in file.parts or file.suffix=='.pyc':continue
     if file.is_symlink():raise ValueError('Linked source file')
     # Git's declared text format and the Linux runtime both use LF. Normalize
@@ -43,7 +43,7 @@ def write(archive,file,name):
     entry.compress_type=zipfile.ZIP_STORED
     archive.writestr(entry,content)
 with zipfile.ZipFile(output,'w',zipfile.ZIP_STORED) as archive:
-    for file in sorted((project/'installer').rglob('*')):
+    for file in sorted((project/'installer').rglob('*'),key=lambda p:p.relative_to(project/'installer').as_posix()):
         if file.is_file() and '__pycache__' not in file.parts and file.suffix!='.pyc':
             write(archive,file,file.relative_to(project/'installer'))
     write(archive,project/'tools/fleet_register.py','operations/fleet_register.py')
