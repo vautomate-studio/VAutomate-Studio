@@ -1,0 +1,14 @@
+{
+  "status": "passed",
+  "checked_at": "2026-10-29T06:19:29.987Z",
+  "source": "0.4.0-alpha.2",
+  "checks": [
+    "actual administrator encrypted backup listing",
+    "real browser attachment download matches independent archive hash",
+    "no account token, password or capability in download URL",
+    "phone recovery screen fits without horizontal overflow",
+    "actual member has no recovery menu",
+    "no uncaught browser errors"
+  ],
+  "scope": "Live HAOS desktop/mobile browser; Android physical download picker remains unverified"
+}

@@ -29,6 +29,7 @@ jobs:
           cache: npm
       - run: python tools/verify_repository.py
       - run: python tools/test_engine.py
+      - run: python tools/test_android_policy.py
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npm test

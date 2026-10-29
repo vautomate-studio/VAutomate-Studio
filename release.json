@@ -1,6 +1,6 @@
 {
   "product": "VAutomate Studio",
-  "version": "0.4.0-alpha.1",
+  "version": "0.4.0-alpha.2",
   "api_version": 1,
   "channel": "alpha",
   "production_ready": false,
@@ -16,8 +16,11 @@
       "evidence": null
     },
     "supervisor_update_and_backup_restore": {
-      "status": "pending",
-      "evidence": null
+      "status": "real_haos_same_lab_restore_passed_spare_gateway_and_supervisor_update_pending",
+      "evidence": null,
+      "partial_evidence": [
+        "evidence/recovery-alpha2/backup-drill-result.json"
+      ]
     },
     "approved_hardware_matrix": {
       "status": "pending",
@@ -89,7 +92,11 @@
     "Correct server-side token revocation on sign-out",
     "Current Core ULID setup-flow compatibility",
     "OS-backed installer lock and scoped interrupted-install recovery",
-    "Corrected display encoding and regression guard"
+    "Corrected display encoding and regression guard",
+    "Admin-only encrypted full home backups, independent streaming export and archive import",
+    "Account-bound recovery review and explicit restore with no request replay",
+    "Real same-lab HAOS restore drill with independent copy and cold checkpoint",
+    "Native HTTP route guard covers onboarding and recovery without generic configuration access"
   ],
   "candidate_changes": [
     "Seven entity-bound occupancy and home-mode templates with explicit approval",

@@ -1,6 +1,6 @@
 # VAutomate Studio Android customer app
 
-Development source **0.4.0-alpha.1**, package `co.vautomate.customer`, version code 7, minimum Android API 31 and target API 36. Physical Android certification remains pending.
+Development source **0.4.0-alpha.2**, package `co.vautomate.customer`, version code 8, minimum Android API 31 and target API 36. Physical Android certification remains pending.
 
 This independent package does not upgrade the personal `co.vautomate.home` app or the Studio Preview. It uses its bundled VAutomate frontend and the versioned Studio service on the configured local/remote server. A missing service produces setup guidance, not a fallback to the Home Assistant frontend.
 

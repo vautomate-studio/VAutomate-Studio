@@ -24,6 +24,11 @@ Responses use normal HA result/error envelopes. An unsupported product operation
 | `camera/snapshot` | HA camera read permission | Bounded JPEG/PNG/WebP snapshot, no camera URLs or tokens |
 | `activity` | Filtered member / administrator | Redacted in-memory recent command/layout/routine activity |
 | `care` | Administrator | Installation checks and pending certification status |
+| `backups/status` | Administrator | Local encrypted-copy metadata and backup-manager state; no cloud reads or passwords |
+| `backups/preview` | Administrator | Inert five-minute review for encrypted creation or selected restoration |
+| `backups/approve` | Same administrator | One explicitly approved create/restore dispatch; no automatic replay; password stays transient |
+
+Recovery uses three fixed HTTP routes. `POST /api/vautomate_studio/v1/backups/export` requires administrator authentication and prepares a one-use HttpOnly download cookie. `GET /api/vautomate_studio/v1/backups/download/{backup_id}` consumes that cookie, rechecks current administrator status and streams the original archive. No account credential, password or download capability appears in the URL. `POST /api/vautomate_studio/v1/backups/import` requires administrator authentication and streams one multipart `.tar` file into local backup storage; it never restores automatically. See [recovery scope](recovery.md).
 
 Command example (use a fresh sufficiently long random request identity and server-adjusted expiry):
 

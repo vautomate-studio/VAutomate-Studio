@@ -1,0 +1,14 @@
+{
+  "status": "passed",
+  "scope": "Inert browser API fixture; no real backup or restoration",
+  "checks": [
+    "administrator recovery entry",
+    "member entry hidden",
+    "backup labels rendered as text",
+    "password mismatch sends no approval",
+    "password fields cleared",
+    "restore explains replacement, saved apps and independent copy",
+    "phone has no horizontal overflow",
+    "no uncaught page errors"
+  ]
+}

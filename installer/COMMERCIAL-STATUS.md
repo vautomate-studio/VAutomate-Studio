@@ -1,6 +1,10 @@
 # Commercial commissioning status
 
-29 October 2026. Source version 0.4.0-alpha.1. Fresh Core first-owner onboarding, missing-entry installation on HAOS, restored shared-home permissions and live phone/desktop browser checks now pass. See [scoped evidence](../docs/first-home-onboarding.md). No new physical Android acceptance or customer certification is claimed. The historical results below belong to 0.3.0-dev.3.
+29 October 2026. Source version 0.4.0-alpha.2. Fresh Core first-owner onboarding, missing-entry installation on HAOS, restored shared-home permissions and live phone/desktop browser checks now pass. See [scoped evidence](../docs/first-home-onboarding.md). No new physical Android acceptance or customer certification is claimed. The historical results below belong to 0.3.0-dev.3.
+
+## Recovery alpha
+
+The new administrator workflow creates encrypted backups, streams independent downloads, imports saved archives and reviews restoration. A real same-lab HAOS restore and actual member denial checks passed. A replacement gateway, physical Android picker and disaster handover remain unverified. See [recovery evidence](../docs/recovery.md).
 
 ## Delivered and checked
 
@@ -16,7 +20,7 @@
 
 The private development repository is hosted at https://github.com/vautomate-studio/VAutomate-Studio. GitHub account verification and source upload are complete. Product CI and native Core contract checks passed for source commit eaafae0. A public customer installation link and certified release remain unavailable. No personal-home deployment or public source publication was performed.
 
-Full fresh-HAOS provisioning, invitations/account recovery, guided device pairing/replacement, approved physical hardware, live-camera acceptance, this app identity's phone-notification delivery, backup/restore drills, full manual-update enforcement across all platform/firmware/phone layers, security review and signed immutable container release distribution remain incomplete. The production release gate intentionally refuses promotion. The installer requires an explicit isolated-candidate override.
+Full fresh-HAOS provisioning, invitations/account recovery, guided device pairing/replacement, approved physical hardware, live-camera acceptance, this app identity's phone-notification delivery, replacement-gateway backup/restore drills, full manual-update enforcement across all platform/firmware/phone layers, security review and signed immutable container release distribution remain incomplete. The production release gate intentionally refuses promotion. The installer requires an explicit isolated-candidate override.
 
 Initial server preparation/preloading remains an installer task; the new preloaded first-owner path is documented separately. Customers should receive a commissioned home; do not hand over this development kit as a finished product. The local fleet register is an inventory tool, not a remote fleet-management service.
 

@@ -15,5 +15,12 @@ assert int(MediaPlayerEntityFeature.SELECT_SOURCE)==2048
 assert int(AlarmControlPanelEntityFeature.ARM_AWAY)==2
 assert bridge.StaticPathConfig and flow.StudioConfigFlow
 assert bridge.studio_request
+from homeassistant.components.backup.manager import BackupManager,NewBackup
+from homeassistant.components.backup.models import AgentBackup,Folder
+import inspect
+assert 'backup_job_id' in NewBackup.__dataclass_fields__
+assert {'include_all_addons','include_database','include_folders','include_homeassistant','password','agent_ids'} <= set(inspect.signature(BackupManager.async_initiate_backup).parameters)
+assert {'restore_addons','restore_database','restore_folders','restore_homeassistant'} <= set(inspect.signature(BackupManager.async_restore_backup).parameters)
+assert {'backup_id','size','protected','addons','folders','homeassistant_included'} <= set(AgentBackup.__dataclass_fields__)
 print('API import and feature contract passed on Core',__version__)
 print('This is a source/API smoke test. Full HAOS, update, restore and device tests remain separate gates.')

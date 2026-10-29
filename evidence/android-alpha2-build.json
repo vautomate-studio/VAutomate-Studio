@@ -1,0 +1,16 @@
+{
+  "status": "build_and_signature_verified",
+  "version": "0.4.0-alpha.2",
+  "package": "co.vautomate.customer",
+  "version_code": 8,
+  "sha256": "9488ce898109d53df0b2afb2f1baa63ea92fc966730d498fac7d4359c6b6d570",
+  "signer_sha256": "d445af7e206054b672a690f54a19cbc9d9d1864e0eb5626ed9255f798d714aec",
+  "checks": [
+    "established signing identity",
+    "APK v3 signature",
+    "zip alignment",
+    "all canonical frontend assets match"
+  ],
+  "physical_device_tests": "not_run",
+  "production_certified": false
+}

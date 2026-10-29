@@ -1,0 +1,28 @@
+{
+  "status": "passed",
+  "checked_at": "2026-10-29T06:12:19.167Z",
+  "source": "0.4.0-alpha.2",
+  "core": "2026.10.4",
+  "environment": "HAOS 18.4 synthetic lab",
+  "checks": [
+    "actual encrypted home/database/apps/folders backup completed",
+    "duplicate approval did not create another job",
+    "encrypted archive independently downloaded outside VM",
+    "cookie-only download capability, one use, no account token or password in URL",
+    "cold VM checkpoint retained before restoration",
+    "synthetic home name changed after backup",
+    "one explicit restore request; no replay on disconnect",
+    "real restored shared layout, read-only setting and paused automations match original",
+    "Supervisor healthy and auto updates remain disabled"
+  ],
+  "archive_sha256": "1fb47532784e8411b90e7feb6ac986a4e5654d497fff4391fe71f2593abcda11",
+  "personal_server_changed": false,
+  "scope": "Real same-lab HAOS restore with independent archive and cold checkpoint; spare physical hardware and fresh-gateway import remain unverified",
+  "additional_checks": [
+    "actual exported encrypted file re-imported without automatically restoring",
+    "actual member denied status, preview, approve, import and export",
+    "anonymous export rejected"
+  ],
+  "import_checked_at": "2026-10-29T06:18:24.715Z",
+  "member_checked_at": "2026-10-29T06:18:26.284Z"
+}

@@ -31,6 +31,8 @@ from .rule_runtime import AutomationRuntime
 from . import commissioning
 from .rules import compile_script
 from .rule_templates import library as rule_library
+from .home_backups import HomeBackups,backup_id
+from .ha_backups import HABackups
 
 DOMAIN="vautomate_studio"
 _LOGGER=logging.getLogger(__name__)
@@ -122,6 +124,85 @@ class StudioHealthView(HomeAssistantView):
         return web.json_response({"api_version":1,"bridge_version":BRIDGE_VERSION,"initialized":DOMAIN in request.app[KEY_HASS].data})
 
 
+class StudioBackupExportView(HomeAssistantView):
+    url="/api/vautomate_studio/v1/backups/export"
+    name="api:vautomate_studio:backups:export"
+    requires_auth=True
+
+    async def post(self,request):
+        try:
+            actor=actor_for(await request.app[KEY_HASS].auth.async_get_user(request[KEY_HASS_USER].id))
+            if not actor.admin:raise web.HTTPForbidden()
+            current=request.app[KEY_HASS].data.get(DOMAIN)
+            if not current:raise web.HTTPServiceUnavailable()
+            if request.content_length is None or request.content_length>1024:raise web.HTTPBadRequest()
+            payload=await request.json()
+            if not isinstance(payload,dict) or set(payload)!={"backup_id"}:raise web.HTTPBadRequest()
+            identity=backup_id(payload["backup_id"])
+            token=await current["backups"].prepare_download(actor,identity)
+            path="/api/vautomate_studio/v1/backups/download/"+identity
+            response=web.json_response({"download":path})
+            response.set_cookie("va_backup",token,path=path,max_age=300,httponly=True,secure=request.secure,samesite="Strict")
+            response.headers["Cache-Control"]="no-store"
+            return response
+        except ProductError as error:
+            return web.json_response({"code":error.code,"message":str(error)},status=403 if error.code=="not_allowed" else 400)
+        except (ValueError,TypeError):
+            raise web.HTTPBadRequest() from None
+
+
+class StudioBackupDownloadView(HomeAssistantView):
+    url="/api/vautomate_studio/v1/backups/download/{identity}"
+    name="api:vautomate_studio:backups:download"
+    requires_auth=False
+
+    async def get(self,request,identity):
+        current=request.app[KEY_HASS].data.get(DOMAIN)
+        if not current:raise web.HTTPServiceUnavailable()
+        try:
+            result=await current["backups"].download(request.cookies.get("va_backup"),identity)
+            response=result if isinstance(result,web.StreamResponse) else web.StreamResponse(headers=result["headers"])
+            response.del_cookie("va_backup",path="/api/vautomate_studio/v1/backups/download/"+identity)
+            if isinstance(result,dict):
+                stream=result["stream"]
+                try:
+                    await response.prepare(request)
+                    async for chunk in stream:await response.write(chunk)
+                    await response.write_eof()
+                finally:
+                    if hasattr(stream,"aclose"):await stream.aclose()
+            return response
+        except ProductError:
+            raise web.HTTPForbidden() from None
+
+
+class StudioBackupUploadView(HomeAssistantView):
+    url="/api/vautomate_studio/v1/backups/import"
+    name="api:vautomate_studio:backups:import"
+    requires_auth=True
+
+    async def post(self,request):
+        user=await request.app[KEY_HASS].auth.async_get_user(request[KEY_HASS_USER].id)
+        try:actor=actor_for(user)
+        except ProductError:raise web.HTTPForbidden() from None
+        if not actor.admin:raise web.HTTPForbidden()
+        current=request.app[KEY_HASS].data.get(DOMAIN)
+        if not current:raise web.HTTPServiceUnavailable()
+        # Reject unsupported/unbounded requests before handing a stream to the manager.
+        if request.content_length is None or request.content_length>4*1024**3:raise web.HTTPRequestEntityTooLarge(max_size=4*1024**3,actual_size=request.content_length or 0)
+        try:
+            reader=await request.multipart()
+            contents=await reader.next()
+            if contents is None or contents.name!="file" or not contents.filename or not contents.filename.lower().endswith(".tar"):
+                raise web.HTTPBadRequest()
+            await current["backups"].adapter.authorize(actor.id)
+            identity=await current["backups"].adapter.receive(contents)
+            return web.json_response({"backup_id":identity,"restored":False},status=201,headers={"Cache-Control":"no-store"})
+        except web.HTTPException:raise
+        except Exception:
+            return web.json_response({"code":"import_failed","message":"The copy could not be imported. Check recovery status, available storage and that you selected a Home Assistant backup archive."},status=400)
+
+
 async def async_setup_entry(hass,entry):
     store=Store(hass,1,"vautomate_studio.commercial.v1")
     document=await store.async_load()
@@ -133,9 +214,12 @@ async def async_setup_entry(hass,entry):
     if "installation_id" not in engine.document:
         engine.document["installation_id"]=engine.installation_id
         await store.async_save(engine.document)
-    hass.data[DOMAIN]={"engine":engine,"entry":entry,"last_tick":None}
+    hass.data[DOMAIN]={"engine":engine,"entry":entry,"last_tick":None,"backups":HomeBackups(HABackups(hass))}
     if not hass.data.get(DOMAIN+"_registered"):
         hass.http.register_view(StudioHealthView)
+        hass.http.register_view(StudioBackupExportView)
+        hass.http.register_view(StudioBackupDownloadView)
+        hass.http.register_view(StudioBackupUploadView)
         await hass.http.async_register_static_paths([StaticPathConfig("/vautomate-studio",str(Path(__file__).parent/"www"),cache_headers=False)])
         websocket_api.async_register_command(hass,studio_request)
         hass.data[DOMAIN+"_registered"]=True
@@ -219,6 +303,9 @@ async def studio_request(hass,connection,msg):
         elif op=="commissioning/status":result=commissioning.status(engine,actor)
         elif op=="commissioning/propose":
             engine.admin(actor);result=commissioning.suggest(engine,actor,await engine.adapter.discover(actor))
+        elif op=="backups/status":result=await hass.data[DOMAIN]["backups"].status(actor)
+        elif op=="backups/preview":result=await hass.data[DOMAIN]["backups"].preview(actor,payload)
+        elif op=="backups/approve":result=await hass.data[DOMAIN]["backups"].approve(actor,payload)
         elif op=="layout/preview":
             result={"layout":engine.validate_layout(actor,payload.get("layout")),"writes":False}
         elif op=="layout/publish":result=await engine.publish(actor,payload.get("layout"),payload.get("revision"))
