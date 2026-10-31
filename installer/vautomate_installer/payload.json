@@ -14,7 +14,7 @@
     "vautomate_studio/household.py": "2dfa37f91bec5db5d3145c5a59f07c2ecb2af64ebad45548d81e5e96d4ab3712",
     "vautomate_studio/manifest.json": "5f32e751a935ee067bda48f53d1229416833501a59b2dbef2af127d8069c9a4f",
     "vautomate_studio/pairing.py": "36713a1f98f7454f9fbe418734b6d895a7ac2221f3002ea15a63df69d8265331",
-    "vautomate_studio/replacement.py": "ddb68359ed05ee4984cb106158c312767fce903a83b50e01d429958a57ef04a4",
+    "vautomate_studio/replacement.py": "a3ebb76ca1f8de6c69bc1bdf5aeecdff11c0047181af55e727c2af4f5ee7648e",
     "vautomate_studio/rule_runtime.py": "b081b662a21efd2d53c84f0d1800ab9efc0ae697035f33ff4d20baba0245ea1b",
     "vautomate_studio/rule_store.py": "b177fd05090f331ff9674f0ebff6621dd7a902862ab74ce53076e53ba8700fdc",
     "vautomate_studio/rule_templates.py": "daf44c8c3eda37322f2ddf9d4536c2ca2c20abc0e69629e9f16853bd05da9069",

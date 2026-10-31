@@ -27,6 +27,9 @@ class ReplacementTest(unittest.IsolatedAsyncioTestCase):
     def approval(self,review,**change):return {'approval_nonce':review['approval_nonce'],'confirmed':True,'external_scope_ack':True,**change}
     async def test_review_is_inert_and_lists_all_affected_references(self):
         before=deepcopy(self.engine.document);review=await self.review();self.assertEqual(self.engine.document,before);self.assertFalse(self.adapter.saved);self.assertFalse(self.adapter.calls);self.assertFalse(review['operates_devices']);self.assertEqual(review['changes']['rooms'][0]['id'],'living');self.assertEqual(review['changes']['schedules'][0]['id'],'morning');self.assertEqual(len(review['changes']['automations']),1)
+    async def test_status_respects_entity_read_permissions_even_for_administrators(self):
+        restricted=fixtures.Actor('restricted','Restricted',True,lambda i:i=='light.one',lambda _:False)
+        result=await self.service.status(restricted);self.assertEqual([e['entity_id'] for e in result['entities']],['light.one'])
     async def test_approval_is_single_commit_and_affected_rules_stay_paused(self):
         review=await self.review();await self.service.approve(self.admin,self.approval(review));self.assertEqual(len(self.adapter.saved),1);self.assertFalse(self.adapter.calls);self.assertNotIn('light.one',self.engine.managed());self.assertIn('light.new',self.engine.managed());self.assertFalse(self.engine.document['routines'][0]['enabled']);self.assertFalse(self.engine.document['automations'][0]['rule']['enabled']);self.assertEqual(self.engine.document['automations'][0]['owner_id'],'owner');self.assertTrue(self.engine.document['automations'][0]['origin']['customized']);self.assertEqual(self.engine.document['revision'],3)
     async def test_duplicate_approval_does_not_save_or_operate_twice(self):

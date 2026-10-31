@@ -35,7 +35,7 @@ class Replacement:
 
     async def status(self,actor):
         await self.admin(actor)
-        return {'entities':[{'entity_id':i,'name':str((self.engine.adapter.state(i) or {}).get('attributes',{}).get('friendly_name') or i),'missing':self.engine.adapter.state(i) is None} for i in sorted(self.engine.managed())],
+        return {'entities':[{'entity_id':i,'name':str((self.engine.adapter.state(i) or {}).get('attributes',{}).get('friendly_name') or i),'missing':self.engine.adapter.state(i) is None} for i in sorted(self.engine.managed()) if actor.read(i)],
                 'scope':'VAutomate rooms, Home buttons, schedules and visual automations only. Home Assistant scenes and external automations are not changed.','operates_devices':False}
 
     def prepare(self,actor,pairs):
