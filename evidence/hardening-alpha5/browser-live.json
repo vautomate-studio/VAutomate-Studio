@@ -1,0 +1,16 @@
+{
+  "status": "passed",
+  "checked_at": "2026-10-31T22:20:12.622Z",
+  "studio": "0.4.0-alpha.5",
+  "scope": "Live read-only browser checks on synthetic HAOS lab; no radio paired",
+  "checks": [
+    "admin sees graceful no-radio state",
+    "no start button without configured radio",
+    "phone pairing and replacement fit",
+    "replacement requires explicit selections",
+    "member has no pairing menu",
+    "verification sign-in sessions revoked",
+    "no browser errors"
+  ],
+  "personal_server_changed": false
+}

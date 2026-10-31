@@ -41,6 +41,20 @@ for file in source.rglob('*'):
     if not destination.is_file() or destination.read_bytes()!=file.read_bytes():errors.append(name+': stale installer payload')
 if manifest['files']!=files:errors.append('Installer file manifest differs from source')
 release=json.loads((root/'release.json').read_text())
+version=release['version']
+component=json.loads((source/'manifest.json').read_text())
+package=json.loads((root/'package.json').read_text())
+lock=json.loads((root/'package-lock.json').read_text())
+if any(v!=version for v in [component.get('version'),package.get('version'),lock.get('version'),lock.get('packages',{}).get('',{}).get('version')]):errors.append('Package/component versions differ')
+for relative,pattern in [('custom_components/vautomate_studio/engine.py',r'BRIDGE_VERSION = "([^"]+)"'),('android/app/src/main/AndroidManifest.xml',r'android:versionName="([^"]+)"'),('android/app/build.gradle',r"versionName '([^']+)'"),('installer/vautomate_installer/config.yaml',r'version: "([^"]+)"')]:
+    match=re.search(pattern,(root/relative).read_text(encoding='utf-8'))
+    if not match or match[1]!=version:errors.append(relative+': version differs from release')
+import ast
+def declared_set(file,name):
+    tree=ast.parse(file.read_text(encoding='utf-8'))
+    node=next(n.value for n in tree.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id==name for t in n.targets))
+    return set(ast.literal_eval(node.args[0] if isinstance(node,ast.Call) else node))
+if declared_set(source/'compatibility.py','CONTRACT_CHECKED_CORES')!=declared_set(root/'installer/vautomate_installer/installer.py','SUPPORTED'):errors.append('Installer and runtime compatibility versions differ')
 if release['version']!=manifest['version']:errors.append('Release and installer versions differ')
 if manifest['production_ready'] is not False or release['production_ready'] is not False:errors.append('Development source must not claim production certification')
 if not (root/'repository.yaml').is_file():errors.append('Missing HAOS repository metadata')

@@ -17,9 +17,10 @@ from typing import Any
 
 from .bundles import BUNDLES
 from .rule_store import RuleStore
+from .document import normalize as normalize_document
 
 API_VERSION = 1
-BRIDGE_VERSION = "0.4.0-alpha.4"
+BRIDGE_VERSION = "0.4.0-alpha.5"
 PREFIX = "vautomate_studio/v1/"
 DOMAINS = {"light", "cover", "switch", "fan", "climate", "media_player", "alarm_control_panel", "scene", "input_boolean", "binary_sensor", "sensor", "camera", "person", "weather"}
 INFORMATIONAL = {"binary_sensor", "sensor", "camera", "person", "weather"}
@@ -100,7 +101,7 @@ class StudioEngine(RuleStore):
     """Only this service can publish Studio layout or dispatch product commands."""
     def __init__(self, adapter, document=None, *, controls=False):
         self.adapter = adapter
-        self.document = deepcopy(document or {"revision": 0, "layout": {"name": "My home", "subtitle": "Your home, beautifully connected.", "rooms": [], "quick_actions": []}, "routines": []})
+        self.document = normalize_document(document if document is not None else {"revision": 0, "layout": {"name": "My home", "subtitle": "Your home, beautifully connected.", "rooms": [], "quick_actions": []}, "routines": []})
         self.installation_id = self.document.get("installation_id") or str(uuid.uuid4())
         self.controls = controls
         self.edit_lock = asyncio.Lock()
@@ -137,7 +138,9 @@ class StudioEngine(RuleStore):
         for entity_id in ids:
             if not ENTITY.fullmatch(entity_id) or entity_id.split(".")[0] not in DOMAINS or not actor.read(entity_id): continue
             state = self.adapter.state(entity_id)
-            if not state: continue
+            if not state:
+                if not discover:output.append({'entity_id':entity_id,'state':'unavailable','attributes':{'friendly_name':entity_id.split('.',1)[1].replace('_',' ')},'last_changed':None,'operations':{},'missing':True})
+                continue
             attrs = {key: deepcopy(value) for key, value in state.get("attributes", {}).items() if key in SAFE_ATTRIBUTES}
             # Codes, media URLs, signed camera URLs, GPS and integration-specific secrets never cross this API.
             output.append({"entity_id": entity_id, "state": state["state"], "attributes": attrs, "last_changed": state.get("last_changed"), "operations": capabilities(state, self.adapter.has_service) if actor.control(entity_id) else {}})
@@ -152,7 +155,8 @@ class StudioEngine(RuleStore):
         return layout
 
     def bootstrap(self, actor):
-        return {"api_version": API_VERSION, "bridge_version": BRIDGE_VERSION, "server_time":self.adapter.now(), "core_version": self.adapter.version, "compatibility": {"status":"evaluation", "certified":False, "message":"This release requires hardware and HAOS acceptance testing."}, "user": {"id": actor.id, "name": actor.name, "role": "administrator" if actor.admin else "member", "can_edit":actor.admin}, "read_only": not self.controls, "revision": self.document["revision"], "layout": self.layout(actor), "entities": self.snapshot(actor), "routines": self.routines(actor), "automations":self.automation_rules(actor), "room_pauses":self.active_room_pauses(actor), "features": {"lights":True,"curtains":True,"security":True,"media":True,"climate":True,"pairing":actor.admin,"updates":False,"backup_restore":actor.admin,"visual_automations":True,"room_pauses":True}}
+        from .compatibility import status
+        return {"api_version": API_VERSION, "bridge_version": BRIDGE_VERSION, "server_time":self.adapter.now(), "core_version": self.adapter.version, "compatibility":status(self.adapter.version), "user": {"id": actor.id, "name": actor.name, "role": "administrator" if actor.admin else "member", "can_edit":actor.admin}, "read_only": not self.controls, "revision": self.document["revision"], "layout": self.layout(actor), "entities": self.snapshot(actor), "routines": self.routines(actor), "automations":self.automation_rules(actor), "room_pauses":self.active_room_pauses(actor), "features": {"lights":True,"curtains":True,"security":True,"media":True,"climate":True,"pairing":actor.admin,"updates":False,"backup_restore":actor.admin,"visual_automations":True,"room_pauses":True}}
 
     def validate_layout(self, actor, value):
         self.admin(actor)
@@ -165,7 +169,7 @@ class StudioEngine(RuleStore):
             if not isinstance(room,dict) or set(room)-{"id","name","entities"} or not isinstance(room.get("id"),str) or not KEY.fullmatch(room["id"]) or room["id"] in used: fail("invalid_input", "Each room needs a unique identity.")
             used.add(room["id"]); ids=room.get("entities")
             if not isinstance(ids,list) or len(ids)>200 or any(not isinstance(i,str) for i in ids) or len(set(ids))!=len(ids): fail("invalid_input","Review this room's devices.")
-            for entity_id in ids:self.entity(actor,entity_id,discover=True)
+            for entity_id in ids:self.validate_selection(actor,entity_id)
             entity_count+=len(ids)
             name=text(room.get("name"))
             if name.casefold() in names:fail("invalid_input","Give each room a different name.")
@@ -175,10 +179,18 @@ class StudioEngine(RuleStore):
         quick_seen=set()
         for q in quick:
             if not isinstance(q,dict) or set(q)-{"entity_id","label"}:fail("invalid_input","Review the Home buttons.")
-            entity_id=q.get("entity_id"); self.entity(actor,entity_id,discover=True)
+            entity_id=q.get("entity_id"); self.validate_selection(actor,entity_id)
             if entity_id.split(".")[0] not in {"scene","input_boolean"} or entity_id in quick_seen: fail("invalid_input","Choose distinct scenes or home modes for the four Home buttons.")
             quick_seen.add(entity_id);result["quick_actions"].append({"entity_id":entity_id,"label":text(q.get("label"))})
         return result
+
+    def validate_selection(self,actor,entity_id):
+        # Retain previously published missing devices so one failed device cannot
+        # prevent unrelated room edits or recovery. New missing IDs remain forbidden.
+        if isinstance(entity_id,str) and entity_id in self.managed() and self.adapter.state(entity_id) is None:
+            if not ENTITY.fullmatch(entity_id) or entity_id.split('.')[0] not in DOMAINS or not actor.read(entity_id):fail('not_allowed','This account cannot retain that selection.')
+            return
+        self.entity(actor,entity_id,discover=True)
 
     async def publish(self, actor, value, revision):
         clean=self.validate_layout(actor,value)

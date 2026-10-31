@@ -1,0 +1,11 @@
+{
+  "status": "passed",
+  "scope": "Manual Supervisor update on synthetic HAOS lab only; no customer hardware certification",
+  "before": "2026.10.4",
+  "after": "2026.10.5",
+  "healthy": true,
+  "auto_update": false,
+  "cold_checkpoint_and_independent_encrypted_backup_verified": true,
+  "request_timeout_reconciled_without_replay": true,
+  "personal_server_changed": false
+}

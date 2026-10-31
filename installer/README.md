@@ -1,6 +1,6 @@
 # VAutomate commissioning installer
 
-Development version 0.4.0-alpha.3. This is not a certified customer release. The bundled service is complete source, not a downloader. Published RC4 artifacts and the personal home are separate.
+Development version 0.4.0-alpha.5. This is not a certified customer release. The bundled service is complete source, not a downloader. Published RC4 artifacts and the personal home are separate.
 
 ## Intended installation
 
@@ -9,11 +9,11 @@ Development version 0.4.0-alpha.3. This is not a certified customer release. The
 3. Confirm the independent backup. For an isolated development server only, explicitly allow the candidate. Start the installer. Start is the install action; it is manual-only and exposes no web or network port.
 4. The installer verifies its bundled files, checks the platform, saves existing Studio code, installs only `custom_components/vautomate_studio`, validates the configuration, restarts Core if the code changed, and creates the Studio integration if missing. Existing integration settings and shared-home data remain in place. Device controls are never enabled automatically.
 5. Open `/vautomate-studio/index.html`, sign in with the home account, and choose **Set up this home**. Name the home, suggest rooms from existing assignments or add them manually, select devices, choose Home buttons, review and publish. Suggestions do not pair, rename, move or operate devices.
-6. Home Care → Installation status provides a local status record. Use the fleet register to track many independent installations. No phone credentials or remote-access tokens are part of the record.
+6. Home Care â†’ Installation status provides a local status record. Use the fleet register to track many independent installations. No phone credentials or remote-access tokens are part of the record.
 
 On an empty Core configuration with Studio preloaded, `/local/vautomate-setup/index.html` can create the first owner and finish platform setup inside VAutomate. This path was tested using a disposable fresh Core configuration on the existing HAOS lab. Initial HAOS provisioning and preloading the package remain installer tasks; a factory image and full fresh-HAOS acceptance have not been delivered. See [first-home evidence](../docs/first-home-onboarding.md).
 
-Zigbee/Matter pairing, customer invitations/recovery, physical-device certification, remote support consent, notification delivery, signed release images and disaster recovery are separate unfinished release gates. This kit does not make them available.
+Radio provisioning, Matter pairing, customer invitations/recovery, physical-device certification, remote support consent, notification delivery, signed release images and disaster recovery are separate unfinished release gates. This kit does not make them available.
 
 ## Local lab preparation
 

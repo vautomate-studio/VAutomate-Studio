@@ -1,7 +1,7 @@
 {
   "domain": "vautomate_studio",
   "name": "VAutomate Studio",
-  "version": "0.4.0-alpha.4",
+  "version": "0.4.0-alpha.5",
   "config_flow": true,
   "dependencies": [
     "http",

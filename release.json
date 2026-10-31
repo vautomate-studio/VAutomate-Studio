@@ -1,6 +1,6 @@
 {
   "product": "VAutomate Studio",
-  "version": "0.4.0-alpha.4",
+  "version": "0.4.0-alpha.5",
   "api_version": 1,
   "channel": "alpha",
   "production_ready": false,
@@ -8,8 +8,12 @@
   "certified_core_versions": [],
   "required_acceptance": {
     "isolated_haos_runtime": {
-      "status": "pending",
-      "evidence": null
+      "status": "synthetic_full_haos_lab_passed_physical_gateway_and_review_pending",
+      "evidence": null,
+      "partial_evidence": [
+        "evidence/hardening-alpha5/haos-install.json",
+        "evidence/hardening-alpha5/browser-live.json"
+      ]
     },
     "core_upgrade_and_compatibility": {
       "status": "pending",
@@ -19,7 +23,8 @@
       "status": "real_haos_same_lab_restore_passed_spare_gateway_and_supervisor_update_pending",
       "evidence": null,
       "partial_evidence": [
-        "evidence/recovery-alpha2/backup-drill-result.json"
+        "evidence/recovery-alpha2/backup-drill-result.json",
+        "evidence/hardening-alpha5/supervisor-update.json"
       ]
     },
     "approved_hardware_matrix": {
@@ -35,8 +40,13 @@
       "evidence": null
     },
     "pairing_and_device_replacement": {
-      "status": "pending",
-      "evidence": null
+      "status": "software_pairing_and_reference_replacement_passed_physical_acceptance_pending",
+      "evidence": null,
+      "partial_evidence": [
+        "evidence/pairing-alpha4/haos-install.json",
+        "evidence/replacement-browser.json",
+        "evidence/hardening-alpha5/replacement-live.json"
+      ]
     },
     "security_review_and_customer_authorization": {
       "status": "pending",
@@ -87,6 +97,21 @@
         "evidence/first-owner-browser.json",
         "evidence/household-alpha3/first-owner-live-result.json"
       ]
+    },
+    "data_migration_and_forward_version_safety": {
+      "status": "schema1_real_core_migration_and_software_guards_passed_forward_hardware_acceptance_pending",
+      "evidence": null,
+      "partial_evidence": [
+        "evidence/hardening-alpha5/schema-migration.json",
+        "evidence/engine-results.json"
+      ]
+    },
+    "installer_distribution_and_signed_artifacts": {
+      "status": "signed_android_candidate_available_public_distribution_and_immutable_images_pending",
+      "evidence": null,
+      "partial_evidence": [
+        "evidence/android-alpha5.json"
+      ]
     }
   },
   "unreleased_changes": [
@@ -105,7 +130,11 @@
     "Reviewed household account creation, role changes, removal and owner-only password resets",
     "Member, view-only and administrator roles with fresh backend checks and session revocation",
     "Own password changes, bounded verification attempts, no exported hashes and protected owner/self accounts",
-    "New passwords rejected above the backend hash limit rather than silently truncated"
+    "New passwords rejected above the backend hash limit rather than silently truncated",
+    "Reviewed Studio reference replacement with paused affected rules and no radio changes",
+    "Exact Core contract guard: untested versions retain reads and block product writes",
+    "Versioned non-destructive document migration and save validation",
+    "Current-release checksum-bound production acceptance records"
   ],
   "candidate_changes": [
     "Seven entity-bound occupancy and home-mode templates with explicit approval",

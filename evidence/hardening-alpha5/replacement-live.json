@@ -1,0 +1,20 @@
+{
+  "status": "passed",
+  "checked_at": "2026-10-31T22:15:50.156Z",
+  "source": "0.4.0-alpha.5",
+  "core": "2026.10.4",
+  "scope": "Disposable real Core on HAOS with synthetic states only; no physical replacement acceptance",
+  "checks": [
+    "actual member rejected at every replacement endpoint",
+    "preview inert and lists schedule/automation references",
+    "scope acknowledgement required",
+    "atomic room/schedule/automation reference migration",
+    "affected enabled rules become paused",
+    "duplicate approval does not increment revision",
+    "synthetic old and new states remain off",
+    "exact Core compatibility status stays uncertified",
+    "fixture original layout, rules and read-only mode restored"
+  ],
+  "personal_server_changed": false,
+  "primary_lab_accounts_changed": false
+}

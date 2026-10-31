@@ -124,12 +124,19 @@ class EngineTest(unittest.IsolatedAsyncioTestCase):
         await self.error("revision_conflict",self.engine.publish(self.admin,self.document["layout"],1));self.assertFalse(self.adapter.saved)
         result=await self.engine.publish(self.admin,self.document["layout"],2);self.assertEqual(result["revision"],3)
     async def test_failed_disk_commit_keeps_previous_layout(self):
+        before=deepcopy(self.engine.document)
         self.adapter.disk_failure=True;value=deepcopy(self.document["layout"]);value["name"]="Changed"
         with self.assertRaises(OSError):await self.engine.publish(self.admin,value,2)
-        self.assertEqual(self.engine.document,self.document)
+        self.assertEqual(self.engine.document,before)
     async def test_layout_input_limits_and_duplicates(self):
         value=deepcopy(self.document["layout"]);value["rooms"].append(value["rooms"][0])
         await self.error("invalid_input",self.engine.publish(self.admin,value,2))
+    async def test_existing_missing_device_does_not_block_layout_recovery(self):
+        del self.adapter.states['light.one'];value=deepcopy(self.document['layout']);value['name']='Still my home'
+        await self.engine.publish(self.admin,value,2);self.assertIn('light.one',self.engine.managed());missing=next(e for e in self.engine.snapshot(self.admin) if e['entity_id']=='light.one');self.assertTrue(missing['missing']);self.assertEqual(missing['operations'],{});self.assertEqual(missing['state'],'unavailable')
+    async def test_new_missing_entity_cannot_be_added_using_recovery_exception(self):
+        value=deepcopy(self.document['layout']);value['rooms'][0]['entities'].append('light.never_existed')
+        await self.error('device_missing',self.engine.publish(self.admin,value,2));self.assertFalse(self.adapter.saved)
     async def test_request_cache_does_not_evict_unexpired_commands(self):
         self.engine.requests.update({("other",str(i)):(b"",{"status":"accepted"},1010) for i in range(2048)})
         await self.error("busy",self.engine.command(self.member,self.request()));self.assertFalse(self.adapter.calls)

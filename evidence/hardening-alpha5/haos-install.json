@@ -1,0 +1,20 @@
+{
+  "status": "passed",
+  "checked_at": "2026-10-31T22:16:54.554Z",
+  "scope": "Real HAOS local-app install, preserved synthetic home and administrative permissions; no hardware or clean-server first-owner certification",
+  "checks": [
+    "existing shared room and paused automations survive installation",
+    "installation identity persists and report remains evaluation-only",
+    "room suggestion cannot replace an already configured home",
+    "authenticated health confirms exact running release",
+    "repeat installation leaves exactly one Studio service entry",
+    "Supervisor remains healthy and automatic updates remain disabled",
+    "pairing gracefully handles no configured radio without writing or hiding controls",
+    "installer health requires authentication and administrator permission",
+    "actual non-admin account is denied commissioning and installation identity",
+    "non-admin receives the same published home"
+  ],
+  "core": "2026.10.4",
+  "studio": "0.4.0-alpha.5",
+  "personal_server_changed": false
+}

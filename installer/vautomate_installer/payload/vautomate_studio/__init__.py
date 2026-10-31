@@ -37,6 +37,9 @@ from .household import Household
 from .ha_household import HAHousehold
 from .pairing import Pairing
 from .ha_pairing import HAPairing
+from .replacement import Replacement
+from .compatibility import status as compatibility_status,guard as compatibility_guard
+from .document import normalize as normalize_document
 
 DOMAIN="vautomate_studio"
 _LOGGER=logging.getLogger(__name__)
@@ -63,7 +66,7 @@ class HAAdapter:
     def next_sun(self,event,offset_minutes):
         from homeassistant.helpers.sun import get_astral_event_next
         return get_astral_event_next(self.hass,event,offset=timedelta(minutes=offset_minutes)).timestamp()
-    async def save(self,document):await self.store.async_save(document)
+    async def save(self,document):await self.store.async_save(normalize_document(document))
     async def validate_native(self,rule):
         from homeassistant.helpers import config_validation as cv,script
         sequence,_=compile_script(rule)
@@ -78,6 +81,7 @@ class HAAdapter:
             return result is not None
         finally:await asyncio.shield(program.async_unload())
     async def call(self,actor,entity_id,action,data):
+        compatibility_guard(CORE_VERSION,'command')
         # Permissions can be revoked after bootstrap. Re-read identity for every dispatch.
         user=await self.hass.auth.async_get_user(actor.id);current=actor_for(user)
         if not current.control(entity_id):raise ProductError("not_allowed","This account can no longer control this device.")
@@ -190,6 +194,8 @@ class StudioBackupUploadView(HomeAssistantView):
         try:actor=actor_for(user)
         except ProductError:raise web.HTTPForbidden() from None
         if not actor.admin:raise web.HTTPForbidden()
+        try:compatibility_guard(CORE_VERSION,'backups/import')
+        except ProductError:raise web.HTTPConflict(reason='Install a compatible VAutomate release before importing a backup.') from None
         current=request.app[KEY_HASS].data.get(DOMAIN)
         if not current:raise web.HTTPServiceUnavailable()
         # Reject unsupported/unbounded requests before handing a stream to the manager.
@@ -210,16 +216,15 @@ class StudioBackupUploadView(HomeAssistantView):
 async def async_setup_entry(hass,entry):
     store=Store(hass,1,"vautomate_studio.commercial.v1")
     document=await store.async_load()
-    if document is not None and (not isinstance(document,dict) or not isinstance(document.get("revision"),int) or not isinstance(document.get("layout"),dict)):
-        # Never silently reset a corrupt home configuration.
-        raise ValueError("Studio storage needs recovery; the existing file was kept")
+    if document is not None:document=normalize_document(document)
     adapter=HAAdapter(hass,store)
-    engine=StudioEngine(adapter,document,controls=entry.options.get("allow_evaluation_controls",False))
+    engine=StudioEngine(adapter,document,controls=entry.options.get("allow_evaluation_controls",False) and compatibility_status(CORE_VERSION)['writes_allowed'])
     if "installation_id" not in engine.document:
         engine.document["installation_id"]=engine.installation_id
         await store.async_save(engine.document)
     hass.data[DOMAIN]={"engine":engine,"entry":entry,"last_tick":None,"backups":HomeBackups(HABackups(hass)),"household":Household(HAHousehold(hass))}
     pairing=Pairing(engine,HAPairing(hass,entry))
+    hass.data[DOMAIN]['replacements']=Replacement(engine,pairing.adapter.authorize)
     try:
         await pairing.initialize()
         hass.data[DOMAIN]["pairing"]=pairing
@@ -308,7 +313,12 @@ async def studio_request(hass,connection,msg):
     try:
         user=await hass.auth.async_get_user(connection.user.id) if connection.user else None
         actor=actor_for(user);op=msg["operation"];payload=msg["payload"]
+        compatibility_guard(CORE_VERSION,op)
         if op=="bootstrap":result=engine.bootstrap(actor)
+        elif op=="compatibility/status":result=compatibility_status(CORE_VERSION)
+        elif op=="replacements/status":result=await hass.data[DOMAIN]['replacements'].status(actor)
+        elif op=="replacements/preview":result=await hass.data[DOMAIN]['replacements'].preview(actor,payload)
+        elif op=="replacements/approve":result=await hass.data[DOMAIN]['replacements'].approve(actor,payload)
         elif op=="snapshot":result={"entities":engine.snapshot(actor),"revision":engine.document["revision"]}
         elif op=="discover":
             engine.admin(actor);result={"entities":engine.snapshot(actor,discover=True),**await engine.adapter.discover(actor)}

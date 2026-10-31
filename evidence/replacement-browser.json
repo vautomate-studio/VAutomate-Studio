@@ -1,0 +1,14 @@
+{
+  "status": "passed",
+  "scope": "Inert replacement UI fixture; no physical device acceptance",
+  "checks": [
+    "explicit old/new selections",
+    "review is inert",
+    "affected rules and external scope shown",
+    "both acknowledgements required",
+    "single approval",
+    "phone fits",
+    "member has no replacement menu",
+    "no browser errors"
+  ]
+}
