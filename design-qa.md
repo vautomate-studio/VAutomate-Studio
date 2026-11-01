@@ -57,4 +57,17 @@ Physical phone/TV motion, camera codec behavior and actual Zigbee hardware certi
 
 Follow-up polish: physical-device animation review on the user's S23 Ultra and TV. No actionable P0/P1/P2 issue remains in the checked interface scope.
 
-Final result: passed
+Historical alpha.9 result: passed
+
+
+## Alpha.10 everyday management follow-up
+
+The requested flow is Manage home -> Rooms -> create/edit/remove -> Devices -> Zigbee connections, plus a member-only local dashboard editor. Browser interaction returned unavailable before fresh captures could be made. No new screenshot audit is claimed for alpha.10; alpha.9 images above are historical context only.
+
+Implemented changes: compact management task rows and primary Add a device action; everyday device filtering by default with an explicit administrator system-entity switch; room removal also removes that room's shortcut cards; linked-routine failures offer Review linked routines; non-admin local presentation editing is scoped by home profile and account and never publishes layout or edits device assignments. Local presentation changes intentionally do not sync to another device. Administrators continue publishing the common starting dashboard.
+
+Validation includes pure view isolation/filtering tests and browser regression coverage for room/card removal and member dashboard controls. Current limitations: physical USB coordinator not detected by Windows; no pairing success or fresh live visual acceptance claimed. Complete the browser capture and physical coordinator tests when these surfaces are available.
+
+Final result: blocked
+
+Blocker: fresh browser-rendered alpha.10 design evidence is unavailable. Software checks and installation results must be reported separately from this visual acceptance status.
