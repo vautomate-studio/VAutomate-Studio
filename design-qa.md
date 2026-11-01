@@ -71,3 +71,8 @@ Validation includes pure view isolation/filtering tests and browser regression c
 Final result: blocked
 
 Blocker: fresh browser-rendered alpha.10 design evidence is unavailable. Software checks and installation results must be reported separately from this visual acceptance status.
+
+
+Alpha.10 automated render inspection: successful private CI run 41311486600 supplied a fresh 390px full-page management-phone.png, saved locally at ../../work/studio-ease-qa/management-phone.png and inspected. It shows compact task rows, a primary Add a device action, readable wrapping and no overflow. This is a simulated home rendered by Chromium, not a live HAOS capture. The member screenshot from that run was rejected because it captured the arrival animation; its test now waits for the intro to detach before capture. The live test-server API separately passed room/card removal, exact restoration of the original shared home, administrator/member permissions and all 32 installed source hashes. 226 backend tests passed in CI.
+
+Manual live visual acceptance remains blocked by browser interaction availability. USB commissioning remains blocked by no detected host or guest serial coordinator. No successful physical pairing is claimed.
