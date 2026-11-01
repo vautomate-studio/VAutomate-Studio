@@ -5,6 +5,7 @@ import re
 import ipaddress
 from urllib.parse import urlparse
 from copy import deepcopy
+from pathlib import Path
 from homeassistant.helpers.storage import Store
 from .engine import ProductError
 from .integration_setup import KINDS
@@ -28,7 +29,13 @@ class HAIntegrations:
         def read():
             try:
                 from serial.tools.list_ports import comports
-                return [{'value':p.device,'label':str(p.description or p.device)[:100]} for p in comports() if p.vid is not None][:32]
+                output=[]
+                for port in comports():
+                    if port.vid is None:continue
+                    stable=next((str(path) for path in sorted(Path('/dev/serial/by-id').glob('*')) if path.resolve()==Path(port.device).resolve()),port.device)
+                    output.append({'value':stable,'aliases':[port.device],'label':str(port.product or port.description or 'USB adapter')[:100],
+                                   'connection':'usb','model_verified':False})
+                return output[:32]
             except ImportError:return []
         return await self.hass.async_add_executor_job(read)
 
@@ -134,7 +141,7 @@ class HAIntegrations:
         marker=await self.store.async_load()
         if self.hass.config_entries.async_entries('zha'):raise ProductError('network_in_use','ZHA was configured while this setup was open. Stop and review the coordinator before starting another network.')
         if not marker or not marker.get('installed_by_studio') or marker.get('configured'):raise ProductError('not_allowed','This setup cannot overwrite an existing Zigbee network.')
-        port=values['port'];ports={p['value'] for p in await self.serial_ports()}
+        port=values['port'];ports={alias for p in await self.serial_ports() for alias in [p['value'],*p.get('aliases',[])]}
         if not isinstance(port,str):raise ProductError('invalid_input','Choose your coordinator connection.')
         if port not in ports:
             try:

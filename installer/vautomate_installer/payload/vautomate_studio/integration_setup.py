@@ -50,9 +50,14 @@ class IntegrationSetup:
     async def begin(self,actor,payload):
         await self.admin(actor)
         if not self.engine.controls:raise ProductError('read_only','Integration setup is disabled in read-only evaluation.')
-        if not isinstance(payload,dict) or set(payload)!={'approval_nonce','confirmed'} or payload['confirmed'] is not True:raise ProductError('confirmation_required','Review and approve this setup first.')
+        if not isinstance(payload,dict) or not {'approval_nonce','confirmed'}<=set(payload) or set(payload)-{'approval_nonce','confirmed','radio_detection_approved','coordinator_history'} or payload['confirmed'] is not True:raise ProductError('confirmation_required','Review and approve this setup first.')
         review=self.reviews.get(payload['approval_nonce']) if isinstance(payload['approval_nonce'],str) else None
         if not review or review['actor']!=actor.id or review['expires']<self.clock():raise ProductError('approval_expired','Review this setup again.')
+        radio=review['kind'] in {'zha','zigbee2mqtt'}
+        history=payload.get('coordinator_history','unknown')
+        if not isinstance(history,str) or history not in {'unused','used','unknown'}:raise ProductError('invalid_input','Choose whether this coordinator has been used before.')
+        if radio and payload.get('radio_detection_approved') is not True:raise ProductError('confirmation_required','Approve coordinator detection first. It may restart the adapter or its serial connection; it does not authorize erasing a network.')
+        if review['kind']=='zigbee2mqtt' and history!='unused':raise ProductError('network_review_required','A previously used or unknown coordinator needs a backup and migration review before Zigbee2MQTT can start. Its existing network has been kept. ZHA can offer Keep existing network when one is found.')
         if self.lock.locked():raise ProductError('busy','Another integration setup is responding.')
         async with self.lock:
             await self.admin(actor)
@@ -64,7 +69,7 @@ class IntegrationSetup:
                 if old['phase'] in {'complete','cancelled','aborted'}:self.sessions.pop(identity)
             if len(self.sessions)>=32:raise ProductError('busy','Integration setup capacity reached. Finish existing setups or restart the service.')
             self.reviews.pop(payload['approval_nonce']);identity=secrets.token_urlsafe(24)
-            session={'id':identity,'actor':actor.id,'kind':review['kind'],'phase':'requested','expires':self.clock()+900,'generation':0,'receipts':{},'handle':None}
+            session={'id':identity,'actor':actor.id,'kind':review['kind'],'phase':'requested','expires':self.clock()+900,'generation':0,'receipts':{},'handle':None,'coordinator_history':history,'radio_detection_approved':radio}
             self.sessions[identity]=session
             try:
                 handle,result=await self.adapter.begin(session['kind']);session['handle']=handle
@@ -74,6 +79,9 @@ class IntegrationSetup:
                 raise ProductError('setup_attention','Setup did not confirm a result. Check Integrations before starting again.') from None
 
     def present(self,session,result):
+        if session['kind']=='zha' and session.get('coordinator_history')!='unused' and result['type']=='menu':
+            result={**result,'options':[option for option in result.get('options',[]) if option!='form_initial_network']}
+            if not result['options']:result={'type':'check_required','reason':'existing_network_review_required','message':'No reusable network was found on this previously used or unknown coordinator. Nothing was erased. Ask your installer to check its backup or approve a separate new-network setup.'}
         session['phase']=result['type'];session['view']=result;session['generation']+=1
         return {'session_id':session['id'],'generation':session['generation'],'kind':session['kind'],**result}
 
@@ -88,6 +96,7 @@ class IntegrationSetup:
         if not self.engine.controls:raise ProductError('read_only','Integration setup is disabled in read-only evaluation.')
         if not isinstance(payload,dict) or set(payload)!={'session_id','generation','input','request_id'} or type(payload['generation']) is not int or not isinstance(payload['input'],dict) or not isinstance(payload['request_id'],str) or not 8<=len(payload['request_id'])<=80:raise ProductError('invalid_input','Complete the current setup step.')
         session=self.owned(actor,payload['session_id']);request=payload['request_id']
+        if session['kind']=='zha' and session.get('coordinator_history')!='unused' and payload['input'].get('next_step_id')=='form_initial_network':raise ProductError('network_review_required','A new network is not approved for this previously used or unknown coordinator.')
         if request in session['receipts']:return session['receipts'][request]
         if payload['generation']!=session['generation'] or session['phase'] not in {'form','menu','progress','progress_done'}:raise ProductError('state_changed','This setup changed. Check its current status.')
         if self.lock.locked():raise ProductError('busy','Setup is responding. Do not resubmit this step.')

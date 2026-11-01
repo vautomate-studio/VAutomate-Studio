@@ -26,7 +26,7 @@ class IntegrationTest(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         fixtures.EngineTest.setUp(self);self.native=Adapter();self.clock=1000.;self.service=module.IntegrationSetup(self.engine,self.native,clock=lambda:self.clock)
     async def begin(self,kind='zha'):
-        review=await self.service.preview(self.admin,{'kind':kind});return await self.service.begin(self.admin,{'approval_nonce':review['approval_nonce'],'confirmed':True})
+        review=await self.service.preview(self.admin,{'kind':kind});return await self.service.begin(self.admin,{'approval_nonce':review['approval_nonce'],'confirmed':True,'radio_detection_approved':True,'coordinator_history':'unknown'})
     def payload(self,setup,**changes):return {'session_id':setup['session_id'],'generation':setup['generation'],'input':{'path':'selected-port'},'request_id':'request-12345678',**changes}
     async def test_completed_setup_capacity_is_reclaimed_without_radio_calls(self):
         self.service.sessions={str(i):{'id':str(i),'actor':'old-owner','phase':'complete'} for i in range(32)}
@@ -73,3 +73,36 @@ class IntegrationTest(unittest.IsolatedAsyncioTestCase):
         setup=await self.begin();self.native.allowed=False
         with self.assertRaises(fixtures.ProductError):await self.service.step(self.admin,self.payload(setup))
         self.assertEqual(len(self.native.calls),1)
+
+
+class CoordinatorProtectionTest(unittest.IsolatedAsyncioTestCase):
+    setUp=IntegrationTest.setUp
+    begin=IntegrationTest.begin
+    payload=IntegrationTest.payload
+    async def test_radio_begin_requires_specific_detection_consent(self):
+        plan=await self.service.preview(self.admin,{'kind':'zha'})
+        with self.assertRaises(fixtures.ProductError) as error:
+            await self.service.begin(self.admin,{'approval_nonce':plan['approval_nonce'],'confirmed':True})
+        self.assertEqual(error.exception.code,'confirmation_required');self.assertEqual(self.native.calls,[])
+    async def test_used_coordinator_cannot_create_initial_network(self):
+        setup=await self.begin()
+        with self.assertRaises(fixtures.ProductError) as error:
+            await self.service.step(self.admin,self.payload(setup,input={'next_step_id':'form_initial_network'}))
+        self.assertEqual(error.exception.code,'network_review_required');self.assertEqual(len(self.native.calls),1)
+    async def test_reuse_is_the_only_network_choice_for_used_coordinator(self):
+        setup=await self.begin();session=self.service.sessions[setup['session_id']]
+        result=self.service.present(session,{'type':'menu','options':['reuse_settings','form_initial_network']})
+        self.assertEqual(result['options'],['reuse_settings'])
+        result=self.service.present(session,{'type':'menu','options':['form_initial_network']})
+        self.assertEqual(result['type'],'check_required')
+    async def test_unknown_or_used_z2m_needs_migration_review(self):
+        for history in ['used','unknown']:
+            plan=await self.service.preview(self.admin,{'kind':'zigbee2mqtt'})
+            with self.assertRaises(fixtures.ProductError) as error:
+                await self.service.begin(self.admin,{'approval_nonce':plan['approval_nonce'],'confirmed':True,'radio_detection_approved':True,'coordinator_history':history})
+            self.assertEqual(error.exception.code,'network_review_required')
+        self.assertEqual(self.native.calls,[])
+    async def test_new_unused_z2m_can_begin_after_review(self):
+        plan=await self.service.preview(self.admin,{'kind':'zigbee2mqtt'})
+        setup=await self.service.begin(self.admin,{'approval_nonce':plan['approval_nonce'],'confirmed':True,'radio_detection_approved':True,'coordinator_history':'unused'})
+        self.assertEqual(setup['type'],'form');self.assertEqual(self.native.calls,[('begin','zigbee2mqtt')])

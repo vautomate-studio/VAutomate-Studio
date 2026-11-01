@@ -2,7 +2,7 @@
 
 A VAutomate frontend and scoped service for one independent Home Assistant server per home, with a separate Android customer app and commissioning installer.
 
-**Development version 0.4.0-alpha.11. Not certified for paying-customer deployment.** Production installation remains blocked by acceptance checks. The personal VAutomate application and existing household configuration are separate.
+**Development version 0.4.0-alpha.12. Not certified for paying-customer deployment.** Production installation remains blocked by acceptance checks. The personal VAutomate application and existing household configuration are separate.
 
 ## Product
 
@@ -75,3 +75,10 @@ Original VAutomate material is not offered under an open-source license. Keep th
 Administrators can open Manage home -> Remote access to install the Home Assistant Community Tailscale app, enable automatic startup and watchdog, and sign in directly with their own Tailscale account. App updates remain manual. The default setup does not advertise subnet routes, create an exit node, enable public Funnel sharing or share home files. Existing advanced configurations require installer review and are not overwritten.
 
 Tailscale must also be connected on the customer's phone or computer. Home account permissions still apply over the private connection. The Android app can save the verified private remote server address after the customer confirms it. Setup reports installed, running and VPN-connected states separately; account approval, key renewal, ACL restrictions or an offline server can still require attention. A running app alone is not evidence of working remote access. Live off-network access requires a customer sign-in and a separate phone test.
+
+
+### Guided coordinator setup
+
+Manage home -> Add a device -> Add a Zigbee coordinator provides USB and network connection choices, readable detected-adapter labels, stable USB paths and explicit consent before native radio detection. ZHA can identify supported adapters without asking the customer to know the chipset. Advanced/manual radio choices remain available when detection cannot identify a model. Detection consent does not authorize erasing an existing network.
+
+Previously used and unknown coordinators follow the protected ZHA reuse path. New-network formation is blocked for those sessions. Zigbee2MQTT setup for a used/unknown adapter requires a separate backup/migration review; this wizard only starts a new Zigbee2MQTT network after the customer identifies the adapter as unused. The flow supports compatible radios handled by ZHA or Zigbee2MQTT, not arbitrary USB devices. No firmware flashing, factory reset or unbounded pairing is performed by this wizard. Completion leads to room-based device pairing.

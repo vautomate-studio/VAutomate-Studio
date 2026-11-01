@@ -81,3 +81,8 @@ Manual live visual acceptance remains blocked by browser interaction availabilit
 ## Alpha.11 remote-access flow
 
 Added an admin-only Remote access task with a deliberate installation review, asynchronous progress, Tailscale-owned external sign-in, actual VPN status, boot/watchdog indicators, renewal/approval states, verified address display, native address confirmation and explicit disable review. No generic Supervisor or ingress proxy is exposed. Automated browser coverage uses an inert Tailscale fixture and never authenticates a real tailnet. Physical remote acceptance requires the customer to sign in and test from a separate Tailscale-connected device. Browser/manual acceptance remains separate from software tests.
+
+
+## Alpha.12 coordinator setup
+
+Simplified Add a device -> Add a Zigbee coordinator into adapter selection, review/detection consent and room-based pairing. USB and network paths share the same flow, with a specific empty state for USB devices that have not been assigned to a VM. USB selection is sent once after approval; long detections expose Check setup progress rather than inviting duplicate writes. Used/unknown network protection is enforced server-side and new Zigbee2MQTT creation requires an unused-adapter declaration. Native forms still handle unsupported models without pretending universal compatibility. Fresh automated wizard captures and hardware identification are separate from commercial certification; this lab forwards Windows serial through a virtual USB adapter.
