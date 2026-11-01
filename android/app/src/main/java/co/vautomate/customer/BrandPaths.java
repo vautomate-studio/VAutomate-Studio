@@ -19,12 +19,6 @@ p.close();
 p.moveTo(83.678981f,67.111149f);
 return p;}
 static Path wordmark(){Path p=new Path();
-p.moveTo(183.160156f,9.492188f);
-p.lineTo(190.644531f,9.492188f);
-p.lineTo(190.644531f,16.980469f);
-p.lineTo(183.160156f,16.980469f);
-p.close();
-p.moveTo(183.160156f,9.492188f);
 p.moveTo(16.071932f,34.696624f);
 p.lineTo(3.071932f,3.837249f);
 p.lineTo(11.493807f,3.837249f);

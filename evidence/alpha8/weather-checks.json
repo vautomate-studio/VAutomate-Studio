@@ -1,0 +1,12 @@
+{
+  "status": "passed",
+  "checks": [
+    "distinct authoritative weather conditions",
+    "home sun state controls clear-night presentation",
+    "rainy remains rainy at night",
+    "missing or unavailable weather never defaults to sunny",
+    "daylight respects read permissions",
+    "only public boolean daylight context, no coordinates"
+  ],
+  "scope": "Unit and isolated engine checks; personal provider accuracy not independently verified"
+}

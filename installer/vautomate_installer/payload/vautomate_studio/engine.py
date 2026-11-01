@@ -20,11 +20,11 @@ from .rule_store import RuleStore
 from .document import normalize as normalize_document
 
 API_VERSION = 1
-BRIDGE_VERSION = "0.4.0-alpha.7"
+BRIDGE_VERSION = "0.4.0-alpha.8"
 PREFIX = "vautomate_studio/v1/"
 DOMAINS = {"light", "cover", "switch", "fan", "climate", "media_player", "alarm_control_panel", "scene", "input_boolean", "binary_sensor", "sensor", "camera", "person", "weather"}
 INFORMATIONAL = {"binary_sensor", "sensor", "camera", "person", "weather"}
-SAFE_ATTRIBUTES = {"friendly_name", "unit_of_measurement", "device_class", "supported_features", "supported_color_modes", "brightness", "color_temp_kelvin", "min_color_temp_kelvin", "max_color_temp_kelvin", "current_position", "percentage", "temperature", "current_temperature", "min_temp", "max_temp", "target_temp_step", "hvac_modes", "hvac_action", "volume_level", "is_volume_muted", "source", "source_list", "media_title", "media_artist", "code_format", "code_arm_required", "temperature_unit", "humidity", "battery_level"}
+SAFE_ATTRIBUTES = {"friendly_name", "unit_of_measurement", "device_class", "supported_features", "supported_color_modes", "brightness", "color_temp_kelvin", "min_color_temp_kelvin", "max_color_temp_kelvin", "current_position", "percentage", "temperature", "current_temperature", "min_temp", "max_temp", "target_temp_step", "hvac_modes", "hvac_action", "volume_level", "is_volume_muted", "source", "source_list", "media_title", "media_artist", "code_format", "code_arm_required", "temperature_unit", "humidity", "battery_level", "is_daytime", "wind_speed", "wind_speed_unit"}
 ENTITY = re.compile(r"^[a-z_]+\.[a-z0-9_]+$")
 KEY = re.compile(r"^[a-zA-Z0-9_-]{1,80}$")
 
@@ -142,8 +142,11 @@ class StudioEngine(RuleStore):
                 if not discover:output.append({'entity_id':entity_id,'state':'unavailable','attributes':{'friendly_name':entity_id.split('.',1)[1].replace('_',' ')},'last_changed':None,'operations':{},'missing':True})
                 continue
             attrs = {key: deepcopy(value) for key, value in state.get("attributes", {}).items() if key in SAFE_ATTRIBUTES}
+            if entity_id.startswith('weather.') and 'is_daytime' not in attrs and actor.read('sun.sun'):
+                sun=self.adapter.state('sun.sun')
+                if sun and sun.get('state') in {'above_horizon','below_horizon'}:attrs['is_daytime']=sun['state']=='above_horizon'
             # Codes, media URLs, signed camera URLs, GPS and integration-specific secrets never cross this API.
-            output.append({"entity_id": entity_id, "state": state["state"], "attributes": attrs, "last_changed": state.get("last_changed"), "operations": capabilities(state, self.adapter.has_service) if actor.control(entity_id) else {}})
+            output.append({"entity_id": entity_id, "state": state["state"], "attributes": attrs, "last_changed": state.get("last_changed"), "last_updated":state.get("last_updated"), "operations": capabilities(state, self.adapter.has_service) if actor.control(entity_id) else {}})
         return output
 
     def layout(self, actor):

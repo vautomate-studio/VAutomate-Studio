@@ -3,8 +3,7 @@ from pathlib import Path
 import re, xml.etree.ElementTree as ET
 
 project = Path(__file__).resolve().parents[1]
-logos = project.parent / 'VAutomate'
-if not logos.exists(): logos = project / 'app/src/main/assets/vautomate-customer'
+logos = project.parent / 'frontend'
 methods = []
 def number(v):
     s = f'{v:.6f}'.rstrip('0').rstrip('.')
@@ -14,6 +13,8 @@ def convert(filename, name, split=False):
     ox, oy, _, _ = map(float, root.get('viewBox').split())
     leaves = []
     def visit(node, tx=0, ty=0):
+        # SVG definitions describe clipping; they are not visible artwork.
+        if node.tag.rsplit('}', 1)[-1] in {'defs','clipPath','mask','metadata','title','desc'}:return
         transform = node.get('transform')
         if transform:
             m = re.fullmatch(r'translate\(\s*([\d.eE+-]+)[ ,]+([\d.eE+-]+)\s*\)', transform)
@@ -40,6 +41,6 @@ def convert(filename, name, split=False):
         methods.append('static Path '+name+'(){Path p=new Path();\n'+'\n'.join(line for leaf in leaves for line in leaf)+'\nreturn p;}')
 convert('brand-short.svg', 'mark', True)
 convert('brand-long.svg', 'wordmark')
-target = project / 'app/src/main/java/co/vautomate/home/BrandPaths.java'
+target = project / 'app/src/main/java/co/vautomate/customer/BrandPaths.java'
 target.write_text('package co.vautomate.customer;\nimport android.graphics.Path;\n/** Generated from the official VAutomate SVG files. */\nfinal class BrandPaths {\n'+'\n'.join(methods)+'\n}\n', encoding='utf-8')
 print('Compiled official short and long logos to native Canvas paths.')
