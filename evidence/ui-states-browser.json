@@ -1,0 +1,18 @@
+{
+  "status": "passed",
+  "scope": "Shared Personal/Studio UI state contract with inert DOM; no home writes",
+  "checks": [
+    "empty and zero-search recovery",
+    "visible loading and slow states",
+    "last view retained offline",
+    "permission rationale",
+    "exact inline validation",
+    "draft captured before sign-in expiry",
+    "credentials and alarm codes excluded",
+    "drafts isolated per user",
+    "draft restoration never actuates a device",
+    "unknown mutation never retries",
+    "success next step",
+    "no browser errors"
+  ]
+}

@@ -34,6 +34,6 @@ from homeassistant.helpers import device_registry,entity_registry
 assert callable(mqtt.is_connected) and callable(mqtt.async_subscribe) and callable(mqtt.async_publish)
 assert 'retain' in inspect.signature(mqtt.async_publish).parameters
 assert callable(device_registry.async_get) and callable(entity_registry.async_get)
-assert bridge.HAPairing and bridge.Pairing
+assert bridge.HAPairing and bridge.Pairing and bridge.HAIntegrations and bridge.IntegrationSetup
 print('API import and feature contract passed on Core',__version__)
 print('This is a source/API smoke test. Full HAOS, update, restore and device tests remain separate gates.')

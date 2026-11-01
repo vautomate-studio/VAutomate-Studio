@@ -1,0 +1,10 @@
+{
+  "version": "0.4.0-alpha.6",
+  "version_code": 12,
+  "sha256": "10c02b4a009124fbde46d49d1ce5f2692d88fa6763c69cec1aae44b00344b7a7",
+  "signer_sha256": "d445af7e206054b672a690f54a19cbc9d9d1864e0eb5626ed9255f798d714aec",
+  "canonical_bundled_assets": 8,
+  "signature_and_alignment_verified": true,
+  "scope": "Static package verification, not physical phone acceptance",
+  "production_certified": false
+}

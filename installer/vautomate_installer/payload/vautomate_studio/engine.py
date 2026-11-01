@@ -20,7 +20,7 @@ from .rule_store import RuleStore
 from .document import normalize as normalize_document
 
 API_VERSION = 1
-BRIDGE_VERSION = "0.4.0-alpha.5"
+BRIDGE_VERSION = "0.4.0-alpha.6"
 PREFIX = "vautomate_studio/v1/"
 DOMAINS = {"light", "cover", "switch", "fan", "climate", "media_player", "alarm_control_panel", "scene", "input_boolean", "binary_sensor", "sensor", "camera", "person", "weather"}
 INFORMATIONAL = {"binary_sensor", "sensor", "camera", "person", "weather"}
@@ -116,7 +116,7 @@ class StudioEngine(RuleStore):
         if not actor.admin: fail("not_allowed", "An administrator must make this change.")
 
     def managed(self):
-        return {entity_id for room in self.document["layout"]["rooms"] for entity_id in room["entities"]} | {q["entity_id"] for q in self.document["layout"]["quick_actions"]}
+        return {entity_id for room in self.document["layout"]["rooms"] for entity_id in room["entities"]} | {q["entity_id"] for q in self.document["layout"]["quick_actions"]} | {c['entity_id'] for c in self.document['layout'].get('cards',[]) if c.get('kind')=='entity'}
 
     def visible(self, actor):
         return {entity_id for entity_id in self.managed() if actor.read(entity_id)}
@@ -152,6 +152,7 @@ class StudioEngine(RuleStore):
         for room in layout["rooms"]: room["entities"] = [i for i in room["entities"] if i in visible]
         layout["rooms"] = [r for r in layout["rooms"] if r["entities"] or actor.admin]
         layout["quick_actions"] = [q for q in layout["quick_actions"] if q["entity_id"] in visible]
+        if 'cards' in layout:layout['cards']=[c for c in layout['cards'] if c['kind']=='entity' and c['entity_id'] in visible or c['kind']=='room' and any(r['id']==c['room_id'] for r in layout['rooms'])]
         return layout
 
     def bootstrap(self, actor):
@@ -160,7 +161,7 @@ class StudioEngine(RuleStore):
 
     def validate_layout(self, actor, value):
         self.admin(actor)
-        if not isinstance(value, dict) or set(value) - {"name","subtitle","rooms","quick_actions"}: fail("invalid_input", "Check the home layout.")
+        if not isinstance(value, dict) or set(value) - {"name","subtitle","rooms","quick_actions","cards","cards_title","show_rooms"}: fail("invalid_input", "Check the home layout.")
         rooms, quick = value.get("rooms"), value.get("quick_actions", [])
         if not isinstance(rooms, list) or len(rooms) > 80 or not isinstance(quick, list) or len(quick) > 4: fail("invalid_input", "Choose up to 80 rooms and four Home buttons.")
         result={"name":text(value.get("name")),"subtitle":text(value.get("subtitle", "Your home, beautifully connected."),160),"rooms":[],"quick_actions":[]}
@@ -182,6 +183,24 @@ class StudioEngine(RuleStore):
             entity_id=q.get("entity_id"); self.validate_selection(actor,entity_id)
             if entity_id.split(".")[0] not in {"scene","input_boolean"} or entity_id in quick_seen: fail("invalid_input","Choose distinct scenes or home modes for the four Home buttons.")
             quick_seen.add(entity_id);result["quick_actions"].append({"entity_id":entity_id,"label":text(q.get("label"))})
+        if 'cards' in value:
+            cards=value['cards'];result['cards']=[];seen_cards=set()
+            if not isinstance(cards,list) or len(cards)>40:fail('invalid_input','Choose up to 40 dashboard cards.')
+            for card in cards:
+                if not isinstance(card,dict) or card.get('kind') not in {'entity','room'} or not isinstance(card.get('id'),str) or not KEY.fullmatch(card['id']) or card['id'] in seen_cards or type(card.get('span')) is not int or card['span'] not in {1,2,3} or set(card)-{'id','kind','entity_id','room_id','span','title'}:fail('invalid_input','Review the dashboard cards.')
+                clean={k:card[k] for k in ['id','kind','span']};seen_cards.add(card['id'])
+                if card.get('title'):clean['title']=text(card['title'])
+                if card['kind']=='entity':
+                    if 'room_id' in card:fail('invalid_input','Choose a control for this card.')
+                    self.validate_selection(actor,card.get('entity_id'));clean['entity_id']=card['entity_id']
+                else:
+                    if 'entity_id' in card or card.get('room_id') not in used:fail('invalid_input','Choose an existing room for this card.')
+                    clean['room_id']=card['room_id']
+                result['cards'].append(clean)
+        if 'cards_title' in value:result['cards_title']=text(value['cards_title'])
+        if 'show_rooms' in value:
+            if type(value['show_rooms']) is not bool:fail('invalid_input','Choose whether rooms appear on Home.')
+            result['show_rooms']=value['show_rooms']
         return result
 
     def validate_selection(self,actor,entity_id):
@@ -196,6 +215,10 @@ class StudioEngine(RuleStore):
         clean=self.validate_layout(actor,value)
         async with self.edit_lock:
             if type(revision) is not int or revision!=self.document["revision"]:fail("revision_conflict","This home was edited elsewhere. Refresh before saving again.")
+            from .rules import references
+            remaining={i for r in clean['rooms'] for i in r['entities']}|{q['entity_id'] for q in clean['quick_actions']}|{c['entity_id'] for c in clean.get('cards',[]) if c['kind']=='entity'}
+            removed=self.managed()-remaining;removed_rooms={r['id'] for r in self.document['layout']['rooms']}-{r['id'] for r in clean['rooms']}
+            if any(references(r['rule'])&removed or r['rule']['room_id'] in removed_rooms for r in self.rule_records()) or any(references(r['actions'])&removed for r in self.document.get('routines',[])):fail('references_in_use','Review or remove linked automations and schedules before removing this room or control.')
             candidate=deepcopy(self.document);candidate.update(revision=revision+1,layout=clean);candidate.setdefault("installation_id",self.installation_id)
             # Disk commit must succeed before shared in-memory state changes.
             await self.adapter.save(candidate)

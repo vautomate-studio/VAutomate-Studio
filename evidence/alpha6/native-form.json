@@ -1,0 +1,10 @@
+{
+  "status": "passed",
+  "scope": "Actual native Core ZHA initial form serialization and cancellation; no radio hardware, integration creation or pairing",
+  "supervised": true,
+  "catalogue": 10,
+  "form": "choose_serial_port",
+  "field_names": [
+    "path"
+  ]
+}

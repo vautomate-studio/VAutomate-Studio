@@ -53,12 +53,15 @@ class Replacement:
                 for key in ['device_class','unit_of_measurement']:
                     if source.get('attributes',{}).get(key)!=target.get('attributes',{}).get(key):raise ProductError('incompatible_device','Choose a replacement with the same reading type and unit. Existing thresholds must remain meaningful.')
             mapping[old]=new;targets.add(new)
-        candidate=deepcopy(self.engine.document);changes={'rooms':[],'home_buttons':[],'schedules':[],'automations':[]}
+        candidate=deepcopy(self.engine.document);changes={'rooms':[],'home_buttons':[],'dashboard_cards':[],'schedules':[],'automations':[]}
         for room in candidate['layout']['rooms']:
             if set(room['entities'])&mapping.keys():
                 room['entities']=[mapping.get(i,i) for i in room['entities']];changes['rooms'].append({'id':room['id'],'name':room['name']})
         for item in candidate['layout']['quick_actions']:
             if item['entity_id'] in mapping:item['entity_id']=mapping[item['entity_id']];changes['home_buttons'].append(item['label'])
+        for card in candidate['layout'].get('cards',[]):
+            if card.get('entity_id') in mapping:
+                card['entity_id']=mapping[card['entity_id']];changes['dashboard_cards'].append({'id':card['id'],'name':card.get('title','Dashboard card')})
         view=StudioEngine(self.engine.adapter,candidate,controls=False)
         candidate['layout']=view.validate_layout(actor,candidate['layout'])
         for routine in candidate.get('routines',[]):

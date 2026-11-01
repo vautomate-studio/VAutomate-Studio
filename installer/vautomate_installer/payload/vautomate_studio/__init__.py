@@ -40,6 +40,8 @@ from .ha_pairing import HAPairing
 from .replacement import Replacement
 from .compatibility import status as compatibility_status,guard as compatibility_guard
 from .document import normalize as normalize_document
+from .integration_setup import IntegrationSetup
+from .ha_integrations import HAIntegrations
 
 DOMAIN="vautomate_studio"
 _LOGGER=logging.getLogger(__name__)
@@ -88,7 +90,7 @@ class HAAdapter:
         await self.hass.services.async_call(entity_id.split(".")[0],action,dict(data),target={"entity_id":entity_id},blocking=True,context=Context(user_id=actor.id))
     async def discover(self,actor):
         entities=er.async_get(self.hass);devices=dr.async_get(self.hass);areas=ar.async_get(self.hass)
-        return {"areas":[{"id":a.id,"name":a.name} for a in areas.async_list_areas()],"devices":[{"id":d.id,"name":d.name_by_user or d.name or "Device","area_id":d.area_id,"manufacturer":d.manufacturer,"model":d.model} for d in devices.devices.values()],"registry":[{"entity_id":e.entity_id,"device_id":e.device_id,"area_id":e.area_id,"disabled":bool(e.disabled_by),"diagnostic":bool(e.entity_category)} for e in entities.entities.values() if actor.read(e.entity_id)]}
+        return {"areas":[{"id":a.id,"name":a.name} for a in areas.async_list_areas()],"devices":[{"id":d.id,"name":d.name_by_user or d.name or "Device","area_id":d.area_id,"manufacturer":d.manufacturer,"model":d.model} for d in devices.devices.values()],"registry":[{"entity_id":e.entity_id,"device_id":e.device_id,"area_id":e.area_id,"disabled":bool(e.disabled_by),"diagnostic":bool(e.entity_category),"name":e.name} for e in entities.entities.values() if actor.read(e.entity_id)]}
     async def history(self,entity_id,hours):
         if "recorder" not in self.hass.config.components:raise ProductError("not_supported","Recording is not configured for this home.")
         from homeassistant.components.recorder import get_instance,history
@@ -225,6 +227,7 @@ async def async_setup_entry(hass,entry):
     hass.data[DOMAIN]={"engine":engine,"entry":entry,"last_tick":None,"backups":HomeBackups(HABackups(hass)),"household":Household(HAHousehold(hass))}
     pairing=Pairing(engine,HAPairing(hass,entry))
     hass.data[DOMAIN]['replacements']=Replacement(engine,pairing.adapter.authorize)
+    hass.data[DOMAIN]['integrations']=IntegrationSetup(engine,HAIntegrations(hass,pairing.adapter.authorize))
     try:
         await pairing.initialize()
         hass.data[DOMAIN]["pairing"]=pairing
@@ -298,6 +301,7 @@ async def async_unload_entry(hass,entry):
     current=hass.data.get(DOMAIN)
     if current:await current["runtime"].close()
     if current and "pairing" in current:await current["pairing"].adapter.close()
+    if current and "integrations" in current:await current['integrations'].close()
     hass.services.async_remove(DOMAIN,"execute_step")
     hass.data.pop(DOMAIN,None)
     return True
@@ -316,6 +320,21 @@ async def studio_request(hass,connection,msg):
         compatibility_guard(CORE_VERSION,op)
         if op=="bootstrap":result=engine.bootstrap(actor)
         elif op=="compatibility/status":result=compatibility_status(CORE_VERSION)
+        elif op in {'integrations/status','integrations/preview','integrations/begin','integrations/step','integrations/cancel'}:
+            manager=hass.data[DOMAIN]['integrations']
+            if op=='integrations/status':result=await manager.status(actor)
+            elif op=='integrations/preview':result=await manager.preview(actor,payload)
+            elif op=='integrations/begin':result=await manager.begin(actor,payload)
+            elif op=='integrations/step':result=await manager.step(actor,payload)
+            else:result=await manager.cancel(actor,payload)
+        elif op=='registry/rename':
+            engine.admin(actor);await hass.data[DOMAIN]['integrations'].adapter.authorize(actor.id)
+            if set(payload)!={'entity_id','name','expected_name'} or not isinstance(payload['name'],str) or not 1<=len(payload['name'].strip())<=80:raise ProductError('invalid_input','Choose a name with one to 80 characters.')
+            engine.entity(actor,payload['entity_id'],discover=True)
+            registry=er.async_get(hass);entity=registry.async_get(payload['entity_id'])
+            if entity is None:raise ProductError('not_supported','This integration does not register editable entity names.')
+            if entity.name!=payload['expected_name']:raise ProductError('state_changed','This name changed. Open the device again before editing it.')
+            registry.async_update_entity(entity.entity_id,name=payload['name'].strip());result={'saved':True}
         elif op=="replacements/status":result=await hass.data[DOMAIN]['replacements'].status(actor)
         elif op=="replacements/preview":result=await hass.data[DOMAIN]['replacements'].preview(actor,payload)
         elif op=="replacements/approve":result=await hass.data[DOMAIN]['replacements'].approve(actor,payload)

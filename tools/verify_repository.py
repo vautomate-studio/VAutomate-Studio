@@ -22,6 +22,10 @@ for file in root.rglob('*'):
     if any(re.search(pattern,content) for pattern in patterns):errors.append(str(relative)+': possible private value; review locally')
 
 frontend=root/'frontend'
+for folder,extra in [(root/'custom_components/vautomate_studio/www',{'native-runtime.js'}),(root/'android/app/src/main/assets/vautomate-customer',set())]:
+    allowed={'app.js','client.js','onboarding.js','automations.js','index.html','studio.css','brand-long.svg','brand-short.svg'}|extra
+    if {f.name for f in folder.iterdir() if f.is_file()}!=allowed:errors.append(str(folder.relative_to(root))+': unexpected distribution assets')
+
 for file in frontend.glob('*'):
     if file.suffix in {'.js','.html','.css'} and re.search(r'\u00c2[\u0080-\u00bf]|\u00e2\u20ac|\u00c3\u0192',file.read_text(encoding='utf-8')):
         errors.append(file.name+': corrupted display characters')

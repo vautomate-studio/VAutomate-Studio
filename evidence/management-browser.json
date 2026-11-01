@@ -1,0 +1,14 @@
+{
+  "status": "passed",
+  "scope": "Inert browser fixture; no radio installation or physical-device certification",
+  "checks": [
+    "visible admin task workspace",
+    "room creation and device placement",
+    "shared custom card add/edit/resize",
+    "explicit integration approval",
+    "native-shaped serial form without YAML",
+    "member direct-route and menu protection",
+    "phone fits",
+    "no browser errors"
+  ]
+}

@@ -25,7 +25,7 @@ const root=path.resolve(__dirname,'../frontend');let browser,server;
    throw Error('Unexpected fixture operation');
   };
  });
- await page.getByRole('button',{name:'Open navigation',exact:true}).click();await page.getByRole('button',{name:'Home Care',exact:true}).click();await page.getByRole('button',{name:'Add a device',exact:true}).click();
+ await page.getByRole('button',{name:'Open navigation',exact:true}).click();await page.getByRole('button',{name:'Home Care',exact:true}).click();await page.getByRole('button',{name:'Add a device',exact:true}).click();await page.getByRole('button',{name:'Pair a Zigbee device',exact:true}).click();
  await page.getByRole('button',{name:'Review pairing',exact:true}).click();await page.getByRole('heading',{name:'Ready to connect?',exact:true}).waitFor();
  assert.equal(await page.evaluate(()=>PAIR_CALLS.filter(c=>c.op==='pairing/begin').length),0);assert(await page.getByRole('button',{name:'Start pairing',exact:true}).isDisabled());
  await page.getByLabel('My device is ready to pair',{exact:true}).check();await page.getByRole('button',{name:'Start pairing',exact:true}).click();await page.getByRole('button',{name:'Stop pairing',exact:true}).waitFor();

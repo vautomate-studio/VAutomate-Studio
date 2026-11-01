@@ -43,6 +43,13 @@ def normalize(value):
         seen.add(room['id'])
     for item in quick:
         if not isinstance(item,dict) or not isinstance(item.get('entity_id'),str) or not ENTITY.fullmatch(item['entity_id']) or not isinstance(item.get('label'),str):raise ValueError('Invalid stored Home button')
+    if 'cards' in layout:
+        cards=layout['cards']
+        if not isinstance(cards,list) or len(cards)>40:raise ValueError('Invalid stored dashboard cards')
+        for card in cards:
+            if not isinstance(card,dict) or card.get('kind') not in {'entity','room'} or not isinstance(card.get('id'),str) or not KEY.fullmatch(card['id']) or type(card.get('span')) is not int or card['span'] not in {1,2,3}:raise ValueError('Invalid stored dashboard card')
+            if card['kind']=='entity' and (not isinstance(card.get('entity_id'),str) or not ENTITY.fullmatch(card['entity_id'])):raise ValueError('Invalid stored card selection')
+            if card['kind']=='room' and card.get('room_id') not in seen:raise ValueError('Invalid stored room card')
     for key in ['routines','automations','replacement_receipts']:
         if key in value and (not isinstance(value[key],list) or any(not isinstance(i,dict) for i in value[key])):raise ValueError('Invalid stored collection')
     for routine in value.get('routines',[]):

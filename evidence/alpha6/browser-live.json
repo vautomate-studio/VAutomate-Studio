@@ -1,0 +1,12 @@
+{
+  "status": "passed",
+  "origin": "Isolated home-LAN test listener; address withheld",
+  "version": "0.4.0-alpha.6",
+  "admin_test_login": true,
+  "guided_templates": 7,
+  "visual_builder_without_yaml": true,
+  "phone_fits": true,
+  "no_browser_errors": true,
+  "device_operations_sent": false,
+  "personal_server_changed": false
+}

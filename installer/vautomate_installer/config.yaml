@@ -1,5 +1,5 @@
 name: VAutomate Studio Installer
-version: "0.4.0-alpha.5"
+version: "0.4.0-alpha.6"
 slug: vautomate_studio_installer
 description: Manually install the bundled Studio service and prepare home onboarding.
 arch: [amd64, aarch64]
