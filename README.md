@@ -2,7 +2,7 @@
 
 A VAutomate frontend and scoped service for one independent Home Assistant server per home, with a separate Android customer app and commissioning installer.
 
-**Development version 0.4.0-alpha.12. Not certified for paying-customer deployment.** Production installation remains blocked by acceptance checks. The personal VAutomate application and existing household configuration are separate.
+**Development version 0.4.0-alpha.13. Not certified for paying-customer deployment.** Production installation remains blocked by acceptance checks. The personal VAutomate application and existing household configuration are separate.
 
 ## Product
 
@@ -82,3 +82,5 @@ Tailscale must also be connected on the customer's phone or computer. Home accou
 Manage home -> Add a device -> Add a Zigbee coordinator provides USB and network connection choices, readable detected-adapter labels, stable USB paths and explicit consent before native radio detection. ZHA can identify supported adapters without asking the customer to know the chipset. Advanced/manual radio choices remain available when detection cannot identify a model. Detection consent does not authorize erasing an existing network.
 
 Previously used and unknown coordinators follow the protected ZHA reuse path. New-network formation is blocked for those sessions. Zigbee2MQTT setup for a used/unknown adapter requires a separate backup/migration review; this wizard only starts a new Zigbee2MQTT network after the customer identifies the adapter as unused. The flow supports compatible radios handled by ZHA or Zigbee2MQTT, not arbitrary USB devices. No firmware flashing, factory reset or unbounded pairing is performed by this wizard. Completion leads to room-based device pairing.
+
+Browser sign-in can be remembered on the current server origin. Remember this device is enabled by default; turn it off on shared devices for tab-only storage. Passwords and access tokens are not persisted. Sign-out clears saved refresh credentials and revokes the session. Android keeps using its encrypted native vault.
