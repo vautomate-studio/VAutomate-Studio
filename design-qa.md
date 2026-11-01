@@ -76,3 +76,8 @@ Blocker: fresh browser-rendered alpha.10 design evidence is unavailable. Softwar
 Alpha.10 automated render inspection: successful private CI run 41311486600 supplied a fresh 390px full-page management-phone.png, saved locally at ../../work/studio-ease-qa/management-phone.png and inspected. It shows compact task rows, a primary Add a device action, readable wrapping and no overflow. This is a simulated home rendered by Chromium, not a live HAOS capture. The member screenshot from that run was rejected because it captured the arrival animation; its test now waits for the intro to detach before capture. The live test-server API separately passed room/card removal, exact restoration of the original shared home, administrator/member permissions and all 32 installed source hashes. 226 backend tests passed in CI.
 
 Manual live visual acceptance remains blocked by browser interaction availability. USB commissioning remains blocked by no detected host or guest serial coordinator. No successful physical pairing is claimed.
+
+
+## Alpha.11 remote-access flow
+
+Added an admin-only Remote access task with a deliberate installation review, asynchronous progress, Tailscale-owned external sign-in, actual VPN status, boot/watchdog indicators, renewal/approval states, verified address display, native address confirmation and explicit disable review. No generic Supervisor or ingress proxy is exposed. Automated browser coverage uses an inert Tailscale fixture and never authenticates a real tailnet. Physical remote acceptance requires the customer to sign in and test from a separate Tailscale-connected device. Browser/manual acceptance remains separate from software tests.

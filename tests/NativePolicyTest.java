@@ -1,11 +1,18 @@
 package co.vautomate.customer;
 
 public final class NativePolicyTest {
+    // Synthetic network-policy fixtures, never customer addresses.
+    private static final String TAIL_ORIGIN="http://"+"100.100.2.10:8123";
     private static final String ORIGIN="http://home.test:8123";
     private static void check(String path,String method,boolean expected){
         if(StudioReadOnlyPolicy.allows(ORIGIN+path,method,ORIGIN)!=expected)throw new AssertionError(method+" "+path);
     }
     public static void main(String[] args){
+        if(!EndpointPolicy.tailscaleLink("https://login.tailscale.com/a/inert-test-only") || !EndpointPolicy.tailscaleLink("https://tailscale.com/download"))throw new AssertionError("Tailscale sign-in link");
+        for(String url:new String[]{"https://login.tailscale.com.other.test/a/inert","http://login.tailscale.com/a/inert","https://user@login.tailscale.com/a/inert","https://login.tailscale.com/a/inert?redirect=other"})if(EndpointPolicy.tailscaleLink(url))throw new AssertionError("Foreign sign-in link");
+        if(!EndpointPolicy.tailscaleOrigin(TAIL_ORIGIN).equals(TAIL_ORIGIN))throw new AssertionError("Remote private origin");
+        for(String url:new String[]{"http://8.8.8.8:8123","http://"+"192.168.1.1:8123","http://100.128.0.1:8123",TAIL_ORIGIN+"/other"}){try{EndpointPolicy.tailscaleOrigin(url);throw new AssertionError("Unverified remote origin");}catch(IllegalArgumentException expected){}}
+
         check("/api/onboarding/users","POST",true);
         check("/api/onboarding/core_config","POST",true);
         check("/api/onboarding/analytics","POST",true);

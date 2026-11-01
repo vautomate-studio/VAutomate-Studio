@@ -2,7 +2,7 @@
 
 A VAutomate frontend and scoped service for one independent Home Assistant server per home, with a separate Android customer app and commissioning installer.
 
-**Development version 0.4.0-alpha.10. Not certified for paying-customer deployment.** Production installation remains blocked by acceptance checks. The personal VAutomate application and existing household configuration are separate.
+**Development version 0.4.0-alpha.11. Not certified for paying-customer deployment.** Production installation remains blocked by acceptance checks. The personal VAutomate application and existing household configuration are separate.
 
 ## Product
 
@@ -68,3 +68,10 @@ Fresh Core first-owner creation, missing-entry installation and a real encrypted
 Earlier Core 2026.9.4/2026.10.2 synthetic compatibility results and the dev.3 full HAOS lab results are historical evidence with their own scopes. They do not certify all Core versions, physical devices or this new source version. Read the [commercial status](installer/COMMERCIAL-STATUS.md) and [acceptance plan](docs/acceptance.md).
 
 Original VAutomate material is not offered under an open-source license. Keep the repository private until the owner deliberately chooses a distribution policy. Read [security guidance](SECURITY.md), [notices](NOTICE.md) and [contribution requirements](CONTRIBUTING.md).
+
+
+### Private remote access
+
+Administrators can open Manage home -> Remote access to install the Home Assistant Community Tailscale app, enable automatic startup and watchdog, and sign in directly with their own Tailscale account. App updates remain manual. The default setup does not advertise subnet routes, create an exit node, enable public Funnel sharing or share home files. Existing advanced configurations require installer review and are not overwritten.
+
+Tailscale must also be connected on the customer's phone or computer. Home account permissions still apply over the private connection. The Android app can save the verified private remote server address after the customer confirms it. Setup reports installed, running and VPN-connected states separately; account approval, key renewal, ACL restrictions or an offline server can still require attention. A running app alone is not evidence of working remote access. Live off-network access requires a customer sign-in and a separate phone test.

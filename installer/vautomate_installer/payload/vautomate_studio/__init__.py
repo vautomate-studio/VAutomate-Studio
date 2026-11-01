@@ -42,6 +42,7 @@ from .compatibility import status as compatibility_status,guard as compatibility
 from .document import normalize as normalize_document
 from .integration_setup import IntegrationSetup
 from .ha_integrations import HAIntegrations
+from .remote_access import RemoteAccess,HARemote
 
 DOMAIN="vautomate_studio"
 _LOGGER=logging.getLogger(__name__)
@@ -236,7 +237,9 @@ async def async_setup_entry(hass,entry):
     hass.data[DOMAIN]={"engine":engine,"entry":entry,"last_tick":None,"backups":HomeBackups(HABackups(hass)),"household":Household(HAHousehold(hass))}
     pairing=Pairing(engine,HAPairing(hass,entry))
     hass.data[DOMAIN]['replacements']=Replacement(engine,pairing.adapter.authorize)
-    hass.data[DOMAIN]['integrations']=IntegrationSetup(engine,HAIntegrations(hass,pairing.adapter.authorize))
+    integration_adapter=HAIntegrations(hass,pairing.adapter.authorize)
+    hass.data[DOMAIN]['integrations']=IntegrationSetup(engine,integration_adapter)
+    hass.data[DOMAIN]['remote']=RemoteAccess(engine,HARemote(hass,integration_adapter))
     try:
         await pairing.initialize()
         hass.data[DOMAIN]["pairing"]=pairing
@@ -309,6 +312,7 @@ async def _reload(hass,entry):await hass.config_entries.async_reload(entry.entry
 async def async_unload_entry(hass,entry):
     current=hass.data.get(DOMAIN)
     if current:await current["runtime"].close()
+    if current and "remote" in current:await current["remote"].shutdown()
     if current and "pairing" in current:await current["pairing"].adapter.close()
     if current and "integrations" in current:await current['integrations'].close()
     hass.services.async_remove(DOMAIN,"execute_step")
@@ -336,6 +340,13 @@ async def studio_request(hass,connection,msg):
             elif op=='integrations/begin':result=await manager.begin(actor,payload)
             elif op=='integrations/step':result=await manager.step(actor,payload)
             else:result=await manager.cancel(actor,payload)
+        elif op in {'remote/status','remote/preview','remote/enable','remote/signin','remote/disable'}:
+            manager=hass.data[DOMAIN]['remote']
+            if op=='remote/status':result=await manager.status(actor)
+            elif op=='remote/preview':result=await manager.preview(actor,payload)
+            elif op=='remote/enable':result=await manager.enable(actor,payload)
+            elif op=='remote/signin':result=await manager.signin(actor,payload)
+            else:result=await manager.disable(actor,payload)
         elif op=='registry/rename':
             engine.admin(actor);await hass.data[DOMAIN]['integrations'].adapter.authorize(actor.id)
             if set(payload)!={'entity_id','name','expected_name'} or not isinstance(payload['name'],str) or not 1<=len(payload['name'].strip())<=80:raise ProductError('invalid_input','Choose a name with one to 80 characters.')

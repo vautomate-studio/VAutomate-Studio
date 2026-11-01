@@ -1,6 +1,6 @@
 # VAutomate commissioning installer
 
-Development version 0.4.0-alpha.10. This is not a certified customer release. The bundled service is complete source, not a downloader. Published RC4 artifacts and the personal home are separate.
+Development version 0.4.0-alpha.11. This is not a certified customer release. The bundled service is complete source, not a downloader. Published RC4 artifacts and the personal home are separate.
 
 ## Intended installation
 

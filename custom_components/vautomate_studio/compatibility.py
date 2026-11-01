@@ -5,7 +5,7 @@ CONTRACT_CHECKED_CORES=frozenset({'2026.9.4','2026.10.2','2026.10.4'})
 # A short explicit read surface prevents a new mutation from accidentally bypassing
 # the compatibility gate. No version ranges imply tests that have not been run.
 READ_OPERATIONS=frozenset({'bootstrap','snapshot','discover','commissioning/status','care','activity','history','camera/snapshot','accounts/me','accounts/list','pairing/status','backups/status','bundles/list','automations/library','automations/traces','replacements/status','compatibility/status'})
-READ_OPERATIONS=READ_OPERATIONS|{'integrations/status'}
+READ_OPERATIONS=READ_OPERATIONS|{'integrations/status','remote/status'}
 
 
 def status(version):

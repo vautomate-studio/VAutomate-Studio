@@ -9,6 +9,16 @@ import java.util.Locale;
 public final class EndpointPolicy {
     public static final String DASHBOARD = "/vautomate-studio/index.html";
     private EndpointPolicy() {}
+    public static boolean tailscaleLink(String value) {
+        try { URI u=URI.create(value); return u.getScheme().equals("https") && u.getRawUserInfo()==null && u.getPort()==-1 && u.getRawQuery()==null && u.getRawFragment()==null && ((u.getHost().equals("login.tailscale.com") && u.getPath().matches("/a/[A-Za-z0-9_-]+")) || (u.getHost().equals("tailscale.com") && u.getPath().equals("/download"))); }
+        catch(Exception e){return false;}
+    }
+    public static String tailscaleOrigin(String value) {
+        String normalized=normalize(value);URI u=URI.create(normalized);String h=u.getHost();
+        if(h==null || !h.matches("100\\.(?:6[4-9]|[7-9][0-9]|1[01][0-9]|12[0-7])\\.[0-9]{1,3}\\.[0-9]{1,3}") || !privateV4(h))throw new IllegalArgumentException("Use the verified private Tailscale address for this home.");
+        return normalized;
+    }
+
     public static String normalize(String value) {
         String text = value == null ? "" : value.trim();
         if (text.isEmpty()) return "";
