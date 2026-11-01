@@ -6,7 +6,7 @@
     "vautomate_studio/compatibility.py": "c546b0a3051efff1d3429f7699256f77d0605fbaed779a04a33356cfde58ef09",
     "vautomate_studio/config_flow.py": "9e53f0fb21d630aa09738e58282cb25a6b70e432bc87c5de66cebb2fb758d11a",
     "vautomate_studio/document.py": "612f2b13725d95e2df3d29ed22ffd00383dbe2e24ae40e6d9103771315adc258",
-    "vautomate_studio/engine.py": "5630abf20fa26e50ace9df9b12fd4fceb7d661cf53ae2dbc497de61186c31c7b",
+    "vautomate_studio/engine.py": "1169a370a9ebed190cabc913f1ef76b099d2c22d2ae49b6abfce0b1a2e2dd272",
     "vautomate_studio/ha_backups.py": "8d74cf8b536372505926db9728120aa8f70d1168ac723f49110fe76ce6d5dc94",
     "vautomate_studio/ha_household.py": "7c9834da526c26224dd8910a843c90d2578350d29952789b1da810b064111e40",
     "vautomate_studio/ha_integrations.py": "880d62cf80caff48dff9839d75ee5488743969dabbff11fabc53a173efdf1a16",
@@ -14,7 +14,7 @@
     "vautomate_studio/home_backups.py": "5640fb4b05df16b2b1a881575382ece88624a06139780f6110cee70a2293b60a",
     "vautomate_studio/household.py": "2dfa37f91bec5db5d3145c5a59f07c2ecb2af64ebad45548d81e5e96d4ab3712",
     "vautomate_studio/integration_setup.py": "1624edc6f56f2239601ed3390f9b714c00c5babe89a4f36c90d96eccc1a86021",
-    "vautomate_studio/manifest.json": "499b7475cfccb8e6da8cfeb0cee96b2430fba3f26fd4c74b997805dfeb7b5210",
+    "vautomate_studio/manifest.json": "f9766514f4ec3c2cdba92eaab6b6637180a0214a41617b7b80b434c5082d3dbe",
     "vautomate_studio/pairing.py": "36713a1f98f7454f9fbe418734b6d895a7ac2221f3002ea15a63df69d8265331",
     "vautomate_studio/remote_access.py": "e1d809f1d8aff9e19175c05c2303b5a0013076930c18893121104a38b9d0c7d5",
     "vautomate_studio/replacement.py": "0aade94fdb5c14922c057506debe99dd011ceca2515bcf459fcd5fef53c2607f",
@@ -24,17 +24,17 @@
     "vautomate_studio/rules.py": "14bc9642f15baf931f9d800a783bd3d24175d64c5f67833aa16a15880915e6e3",
     "vautomate_studio/strings.json": "9da11a8c2601e8b219a62184e1dee3008100d0fe2e9a642ef0cf3e80f413de6e",
     "vautomate_studio/translations/en.json": "9da11a8c2601e8b219a62184e1dee3008100d0fe2e9a642ef0cf3e80f413de6e",
-    "vautomate_studio/www/app.js": "99315f6a3d02966bc58e3187152316d4fe179c921fde84f4430452b5f92a9fcc",
+    "vautomate_studio/www/app.js": "497254bc8c79f917425eb0d372f3740759ea97d339a7b221267de151433d2674",
     "vautomate_studio/www/automations.js": "374c1c854dbdfd4bb3746b8530d49a69ab320071a7667ac8c27d14142ec9690a",
     "vautomate_studio/www/brand-long.svg": "bde0dc64a761ddf440698a385b6e11a75605c1a45b66ebbd84ac1d5df4b74bf0",
     "vautomate_studio/www/brand-short.svg": "9f60ab829422cabb1730686edcfeb44671e8d05e1caad2307ed9a50c6e3123e8",
     "vautomate_studio/www/client.js": "6ca64aa7239a75a1f2870df3cbd2564c21b964aa10960d31ea24cc11f701a674",
-    "vautomate_studio/www/index.html": "e8e0accaa4776e7db0484f241e623515d9623d63513a4f0316de0fbcdab1226f",
+    "vautomate_studio/www/index.html": "32dd4481c1ada7a2feb0edd95d3a0231878b4caed5be995483927136ec191ecd",
     "vautomate_studio/www/native-runtime.js": "4ab47c7d276b9b2fd516b6441f95dd0b352718270c4d69aa43eb57d8cde70587",
     "vautomate_studio/www/onboarding.js": "3c4d8de7a19850848ce7dbe06a834934d61f2e695b25de728eee25f32209e8d2",
-    "vautomate_studio/www/studio.css": "4c71ca730910bf689ab13a164d3000b889016fd3168f3f568612c2127fbb5b34"
+    "vautomate_studio/www/studio.css": "6f5c538bc4d0936b3e07f9e23a4bab609d5358330c67a4e89989bf605230eb17"
   },
   "manual_install_only": true,
   "production_ready": false,
-  "version": "0.4.0-alpha.13"
+  "version": "0.4.0-alpha.14"
 }

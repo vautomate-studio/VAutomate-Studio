@@ -2,7 +2,7 @@ plugins { id 'com.android.application' }
 android {
     namespace 'co.vautomate.customer'
     compileSdk 36
-    defaultConfig { applicationId 'co.vautomate.customer'; minSdk 31; targetSdk 36; versionCode 19; versionName '0.4.0-alpha.13' }
+    defaultConfig { applicationId 'co.vautomate.customer'; minSdk 31; targetSdk 36; versionCode 20; versionName '0.4.0-alpha.14' }
     compileOptions { sourceCompatibility JavaVersion.VERSION_1_8; targetCompatibility JavaVersion.VERSION_1_8 }
     buildTypes { release { minifyEnabled false; debuggable false } }
 }

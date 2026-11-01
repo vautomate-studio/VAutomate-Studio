@@ -2,7 +2,7 @@
 
 A VAutomate frontend and scoped service for one independent Home Assistant server per home, with a separate Android customer app and commissioning installer.
 
-**Development version 0.4.0-alpha.13. Not certified for paying-customer deployment.** Production installation remains blocked by acceptance checks. The personal VAutomate application and existing household configuration are separate.
+**Development version 0.4.0-alpha.14. Not certified for paying-customer deployment.** Production installation remains blocked by acceptance checks. The personal VAutomate application and existing household configuration are separate.
 
 ## Product
 
@@ -84,3 +84,5 @@ Manage home -> Add a device -> Add a Zigbee coordinator provides USB and network
 Previously used and unknown coordinators follow the protected ZHA reuse path. New-network formation is blocked for those sessions. Zigbee2MQTT setup for a used/unknown adapter requires a separate backup/migration review; this wizard only starts a new Zigbee2MQTT network after the customer identifies the adapter as unused. The flow supports compatible radios handled by ZHA or Zigbee2MQTT, not arbitrary USB devices. No firmware flashing, factory reset or unbounded pairing is performed by this wizard. Completion leads to room-based device pairing.
 
 Browser sign-in can be remembered on the current server origin. Remember this device is enabled by default; turn it off on shared devices for tab-only storage. Passwords and access tokens are not persisted. Sign-out clears saved refresh credentials and revokes the session. Android keeps using its encrypted native vault.
+
+Zigbee has a dedicated administrator workspace in Manage home. It reports the active ZHA or Zigbee2MQTT network and connection state. Coordinator settings stay separate from Add device. Pairing uses one room-and-readiness screen with an explicit 60-second search; no network opens on page entry. Both logo variants retain the viewport centre during scrolling.
