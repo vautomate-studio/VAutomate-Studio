@@ -24,6 +24,12 @@ class Flow:
     def async_abort(self,identity):self.aborted.append(identity)
 
 class HAIntegrationTest(unittest.IsolatedAsyncioTestCase):
+    async def test_unrenderable_initial_flow_aborts_only_its_new_flow(self):
+        with patch.object(self.adapter,'serialize',side_effect=ValueError('unsupported schema')):
+            with self.assertRaises(ValueError):await self.adapter.begin('zha')
+        self.assertEqual(self.flow.aborted,['owned'])
+        self.assertFalse(self.adapter.owned)
+
     def test_native_form_allows_explicit_null_errors(self):
         adapter=module.HAIntegrations(NS(),None)
         result=adapter.serialize({'type':'form','step_id':'choose_serial_port','errors':None,'data_schema':None})

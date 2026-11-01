@@ -87,7 +87,11 @@ class HAIntegrations:
         if kind in {'zha','mqtt'} and self.hass.config_entries.async_entries(kind):raise ProductError('already_configured','This integration already exists.')
         result=await self.hass.config_entries.flow.async_init(kind,context={'source':'user','show_advanced_options':False})
         identity=result.get('flow_id');self.owned.add(identity)
-        return identity,self.serialize(result,kind)
+        try:return identity,self.serialize(result,kind)
+        except Exception:
+            if identity in self.owned:
+                self.hass.config_entries.flow.async_abort(identity);self.owned.discard(identity)
+            raise
 
     async def step(self,kind,handle,values):
         if kind=='zigbee2mqtt':return await (self.z2m_configure(values) if 'adapter' in values else self.z2m_install(values))

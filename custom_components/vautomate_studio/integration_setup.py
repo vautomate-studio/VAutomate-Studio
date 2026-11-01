@@ -57,6 +57,11 @@ class IntegrationSetup:
         async with self.lock:
             await self.admin(actor)
             if any(s['actor']==actor.id and s['phase'] not in {'complete','cancelled','aborted'} for s in self.sessions.values()):raise ProductError('busy','Finish or cancel your open setup before starting another.')
+            # Reclaim completed/cancelled receipts before refusing a new setup.
+            # Active or uncertain flows always require deliberate reconciliation.
+            for identity,old in list(self.sessions.items()):
+                if len(self.sessions)<32:break
+                if old['phase'] in {'complete','cancelled','aborted'}:self.sessions.pop(identity)
             if len(self.sessions)>=32:raise ProductError('busy','Integration setup capacity reached. Finish existing setups or restart the service.')
             self.reviews.pop(payload['approval_nonce']);identity=secrets.token_urlsafe(24)
             session={'id':identity,'actor':actor.id,'kind':review['kind'],'phase':'requested','expires':self.clock()+900,'generation':0,'receipts':{},'handle':None}

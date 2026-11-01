@@ -1,0 +1,11 @@
+{
+  "status": "passed",
+  "checks": [
+    "published Personal index boots without browser errors",
+    "bundled Personal index boots without browser errors",
+    "cached room readings and disabled controls remain visible offline",
+    "signed APK contains canonical recovery assets"
+  ],
+  "scope": "Read-only Personal page checks and inert synthetic browser states; no HA configuration writes or hardware operations",
+  "native_phone_acceptance": false
+}

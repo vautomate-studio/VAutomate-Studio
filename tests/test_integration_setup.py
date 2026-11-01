@@ -28,6 +28,13 @@ class IntegrationTest(unittest.IsolatedAsyncioTestCase):
     async def begin(self,kind='zha'):
         review=await self.service.preview(self.admin,{'kind':kind});return await self.service.begin(self.admin,{'approval_nonce':review['approval_nonce'],'confirmed':True})
     def payload(self,setup,**changes):return {'session_id':setup['session_id'],'generation':setup['generation'],'input':{'path':'selected-port'},'request_id':'request-12345678',**changes}
+    async def test_completed_setup_capacity_is_reclaimed_without_radio_calls(self):
+        self.service.sessions={str(i):{'id':str(i),'actor':'old-owner','phase':'complete'} for i in range(32)}
+        setup=await self.begin()
+        self.assertEqual(setup['type'],'form')
+        self.assertEqual(len(self.service.sessions),32)
+        self.assertEqual(self.native.calls,[('begin','zha')])
+
     async def test_preview_is_inert_and_only_known_integrations_exist(self):
         review=await self.service.preview(self.admin,{'kind':'zigbee2mqtt'});self.assertTrue(review['third_party_software']);self.assertFalse(review['writes']);self.assertEqual(self.native.calls,[])
         for kind in ['arbitrary',[],{},None]:

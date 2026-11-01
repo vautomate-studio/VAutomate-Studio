@@ -4,6 +4,8 @@
   "checks": [
     "visible admin task workspace",
     "room creation and device placement",
+    "complete room drafts retain selections hidden by search",
+    "explicit room restoration never publishes automatically",
     "shared custom card add/edit/resize",
     "explicit integration approval",
     "native-shaped serial form without YAML",

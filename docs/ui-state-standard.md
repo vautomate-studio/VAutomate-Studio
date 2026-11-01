@@ -20,3 +20,5 @@ Drafts are scoped by edition, server origin, native profile and user. They are s
 Read-only retry is user initiated. Failed or timed-out mutations show **Check current status**, never a replay button. A return online refreshes reads only. Partial native integration setup must reconcile its own journal before continuation.
 
 Validation evidence: `tests/ui-states-browser.cjs` exercises all ten states using inert DOM and controlled time, privacy filtering, per-user isolation and no restoration actuation. The full Studio browser suite covers actual editor integration. Personal full-index checks are performed separately in its local test workspace. Physical Android/TV and network outage acceptance still require device testing.
+
+Alpha.7 adds feedback hosted in the active modal top layer, concurrent-request ownership, preserved input help text, camel-case credential filtering and editor-specific keys. Untouched editors cannot overwrite an existing draft. Complete room models retain selections hidden by search; restoration never publishes a layout. Personal rooms retain cached readings and disabled actuators during disconnection.

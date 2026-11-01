@@ -13,6 +13,13 @@
     "draft restoration never actuates a device",
     "unknown mutation never retries",
     "success next step",
+    "feedback stays above an open modal",
+    "feedback returns to page after modal closes",
+    "overlapping requests do not hide pending work",
+    "camel-case secrets excluded",
+    "editor-specific drafts cannot cross cards",
+    "existing accessible field help retained",
+    "late loading timers cannot cover permission errors",
     "no browser errors"
   ]
 }
