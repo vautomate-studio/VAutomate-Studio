@@ -93,6 +93,10 @@ class HAAdapter:
         user=await self.hass.auth.async_get_user(actor.id);current=actor_for(user)
         if not current.control(entity_id):raise ProductError("not_allowed","This account can no longer control this device.")
         await self.hass.services.async_call(entity_id.split(".")[0],action,dict(data),target={"entity_id":entity_id},blocking=True,context=Context(user_id=actor.id))
+    def is_system_entity(self,entity_id):
+        entry=er.async_get(self.hass).async_get(entity_id)
+        return bool(entry and (entry.entity_category or entry.disabled_by))
+
     async def discover(self,actor):
         entities=er.async_get(self.hass);devices=dr.async_get(self.hass);areas=ar.async_get(self.hass)
         return {"areas":[{"id":a.id,"name":a.name} for a in areas.async_list_areas()],"devices":[{"id":d.id,"name":d.name_by_user or d.name or "Device","area_id":d.area_id,"manufacturer":d.manufacturer,"model":d.model} for d in devices.devices.values()],"registry":[{"entity_id":e.entity_id,"device_id":e.device_id,"area_id":e.area_id,"disabled":bool(e.disabled_by),"diagnostic":bool(e.entity_category),"name":e.name} for e in entities.entities.values() if actor.read(e.entity_id)]}

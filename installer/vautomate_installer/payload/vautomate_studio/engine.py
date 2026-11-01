@@ -118,8 +118,16 @@ class StudioEngine(RuleStore):
     def managed(self):
         return {entity_id for room in self.document["layout"]["rooms"] for entity_id in room["entities"]} | {q["entity_id"] for q in self.document["layout"]["quick_actions"]} | {c['entity_id'] for c in self.document['layout'].get('cards',[]) if c.get('kind')=='entity'}
 
+    def is_system(self,entity_id):
+        check=getattr(self.adapter,'is_system_entity',None)
+        return bool(check(entity_id)) if callable(check) else False
+
+    def member_visible(self,entity_id):
+        if self.is_system(entity_id):return False
+        return not entity_id.startswith('input_boolean.') or any(q['entity_id']==entity_id for q in self.document['layout']['quick_actions'])
+
     def visible(self, actor):
-        return {entity_id for entity_id in self.managed() if actor.read(entity_id)}
+        return {entity_id for entity_id in self.managed() if actor.read(entity_id) and (actor.admin or self.member_visible(entity_id))}
 
     def entity(self, actor, entity_id, *, control=False, discover=False):
         if not isinstance(entity_id, str) or not ENTITY.fullmatch(entity_id) or entity_id.split(".")[0] not in DOMAINS:
@@ -127,6 +135,7 @@ class StudioEngine(RuleStore):
         if not actor.read(entity_id) or (control and not actor.control(entity_id)):
             fail("not_allowed", "This account cannot access this device.")
         if not discover and entity_id not in self.managed(): fail("not_allowed", "Ask your installer to add this device to your home.")
+        if not actor.admin and not self.member_visible(entity_id):fail('not_allowed','This control is reserved for your home administrator.')
         state = self.adapter.state(entity_id)
         if not state: fail("device_missing", "This device is no longer available. Ask your installer to check it.")
         return state
@@ -149,7 +158,7 @@ class StudioEngine(RuleStore):
                     daylight=self.adapter.weather_daylight()
                     if type(daylight) is bool:attrs['is_daytime']=daylight
             # Codes, media URLs, signed camera URLs, GPS and integration-specific secrets never cross this API.
-            output.append({"entity_id": entity_id, "state": state["state"], "attributes": attrs, "last_changed": state.get("last_changed"), "last_updated":state.get("last_updated"), "operations": capabilities(state, self.adapter.has_service) if actor.control(entity_id) else {}})
+            output.append({"entity_id": entity_id, "state": state["state"], "attributes": attrs, "last_changed": state.get("last_changed"), "last_updated":state.get("last_updated"), "system":self.is_system(entity_id), "operations": capabilities(state, self.adapter.has_service) if actor.control(entity_id) else {}})
         return output
 
     def layout(self, actor):
@@ -288,7 +297,7 @@ class StudioEngine(RuleStore):
             if not room or category not in {"light","fan","switch"} or any(k in payload for k in {"entity_id","action","data","expected_state"}):fail("invalid_input","Choose a room control.")
             lock=self.room_locks.setdefault(room["id"]+":"+category,asyncio.Lock())
             if lock.locked():fail("busy","That room is already responding. Please wait for its status.")
-            targets=[i for i in room["entities"] if i.startswith(category+".") and actor.read(i)]
+            targets=[i for i in room["entities"] if i.startswith(category+".") and actor.read(i) and (actor.admin or self.member_visible(i))]
             if not targets:fail("device_missing","There are no controls in this room.")
             # All members are checked before any device is operated.
             snapshots=[self.entity(actor,i,control=True) for i in targets]

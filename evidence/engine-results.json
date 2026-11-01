@@ -1,6 +1,6 @@
 {
   "status": "passed",
-  "tests": 222,
+  "tests": 225,
   "failures": 0,
   "errors": 0,
   "scope": "Isolated engine and simulated adapter. No live HAOS connection."
