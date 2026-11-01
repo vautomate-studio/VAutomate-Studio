@@ -20,7 +20,7 @@ from .rule_store import RuleStore
 from .document import normalize as normalize_document
 
 API_VERSION = 1
-BRIDGE_VERSION = "0.4.0-alpha.8"
+BRIDGE_VERSION = "0.4.0-alpha.9"
 PREFIX = "vautomate_studio/v1/"
 DOMAINS = {"light", "cover", "switch", "fan", "climate", "media_player", "alarm_control_panel", "scene", "input_boolean", "binary_sensor", "sensor", "camera", "person", "weather"}
 INFORMATIONAL = {"binary_sensor", "sensor", "camera", "person", "weather"}
@@ -142,9 +142,12 @@ class StudioEngine(RuleStore):
                 if not discover:output.append({'entity_id':entity_id,'state':'unavailable','attributes':{'friendly_name':entity_id.split('.',1)[1].replace('_',' ')},'last_changed':None,'operations':{},'missing':True})
                 continue
             attrs = {key: deepcopy(value) for key, value in state.get("attributes", {}).items() if key in SAFE_ATTRIBUTES}
-            if entity_id.startswith('weather.') and 'is_daytime' not in attrs and actor.read('sun.sun'):
+            if entity_id.startswith('weather.') and actor.read('sun.sun'):
                 sun=self.adapter.state('sun.sun')
                 if sun and sun.get('state') in {'above_horizon','below_horizon'}:attrs['is_daytime']=sun['state']=='above_horizon'
+                elif callable(getattr(self.adapter,'weather_daylight',None)):
+                    daylight=self.adapter.weather_daylight()
+                    if type(daylight) is bool:attrs['is_daytime']=daylight
             # Codes, media URLs, signed camera URLs, GPS and integration-specific secrets never cross this API.
             output.append({"entity_id": entity_id, "state": state["state"], "attributes": attrs, "last_changed": state.get("last_changed"), "last_updated":state.get("last_updated"), "operations": capabilities(state, self.adapter.has_service) if actor.control(entity_id) else {}})
         return output
@@ -160,7 +163,7 @@ class StudioEngine(RuleStore):
 
     def bootstrap(self, actor):
         from .compatibility import status
-        return {"api_version": API_VERSION, "bridge_version": BRIDGE_VERSION, "server_time":self.adapter.now(), "core_version": self.adapter.version, "compatibility":status(self.adapter.version), "user": {"id": actor.id, "name": actor.name, "role": "administrator" if actor.admin else "member", "can_edit":actor.admin}, "read_only": not self.controls, "revision": self.document["revision"], "layout": self.layout(actor), "entities": self.snapshot(actor), "routines": self.routines(actor), "automations":self.automation_rules(actor), "room_pauses":self.active_room_pauses(actor), "features": {"lights":True,"curtains":True,"security":True,"media":True,"climate":True,"pairing":actor.admin,"updates":False,"backup_restore":actor.admin,"visual_automations":True,"room_pauses":True}}
+        return {"api_version": API_VERSION, "bridge_version": BRIDGE_VERSION, "server_time":self.adapter.now(),"time_zone":getattr(self.adapter,"time_zone",None), "core_version": self.adapter.version, "compatibility":status(self.adapter.version), "user": {"id": actor.id, "name": actor.name, "role": "administrator" if actor.admin else "member", "can_edit":actor.admin}, "read_only": not self.controls, "revision": self.document["revision"], "layout": self.layout(actor), "entities": self.snapshot(actor), "routines": self.routines(actor), "automations":self.automation_rules(actor), "room_pauses":self.active_room_pauses(actor), "features": {"lights":True,"curtains":True,"security":True,"media":True,"climate":True,"pairing":actor.admin,"updates":False,"backup_restore":actor.admin,"visual_automations":True,"room_pauses":True}}
 
     def validate_layout(self, actor, value):
         self.admin(actor)

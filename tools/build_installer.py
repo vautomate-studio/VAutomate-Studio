@@ -3,6 +3,8 @@ from pathlib import Path
 import hashlib,json,shutil,zipfile
 
 project=Path(__file__).resolve().parents[1]
+from sync_frontend import sync
+sync(project)
 app=project/'installer/vautomate_installer'
 payload=app/'payload/vautomate_studio'
 payload.mkdir(parents=True,exist_ok=True)

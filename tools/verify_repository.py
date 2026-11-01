@@ -46,6 +46,8 @@ for file in source.rglob('*'):
 if manifest['files']!=files:errors.append('Installer file manifest differs from source')
 release=json.loads((root/'release.json').read_text())
 version=release['version']
+index=(frontend/'index.html').read_text(encoding='utf-8')
+if 'data-build=\"'+version+'\"' not in index or 'app.js?v='+version not in index or 'studio.css?v='+version not in index:errors.append('Frontend build or versioned asset URLs differ from release')
 component=json.loads((source/'manifest.json').read_text())
 package=json.loads((root/'package.json').read_text())
 lock=json.loads((root/'package-lock.json').read_text())

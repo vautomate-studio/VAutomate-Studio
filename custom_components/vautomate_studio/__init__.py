@@ -57,6 +57,11 @@ class HAAdapter:
     def __init__(self,hass,store):
         self.hass=hass;self.store=store;self.version=CORE_VERSION;self.time_zone=hass.config.time_zone
         self.history_jobs=asyncio.Semaphore(2);self.camera_jobs=asyncio.Semaphore(2);self.camera_cache=OrderedDict()
+    def weather_daylight(self):
+        from homeassistant.helpers.sun import is_up
+        try:return is_up(self.hass)
+        except (ValueError,TypeError):return None
+
     def state(self,entity_id):
         state=self.hass.states.get(entity_id)
         return state.as_dict() if state else None

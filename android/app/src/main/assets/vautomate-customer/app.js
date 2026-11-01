@@ -13,7 +13,7 @@ function selectField(label,options,value){const wrap=element('label','field',lab
 function domain(id){return id.split('.')[0]}
 function entityName(s){return s?.attributes?.friendly_name||s?.entity_id?.split('.')[1]?.replaceAll('_',' ')||'Device'}
 function online(s){return s&&!['unknown','unavailable'].includes(s.state)}
-function labelState(s){if(s&&domain(s.entity_id)==='weather'&&window.VAutomateWeather)return VAutomateWeather.present(s).label;if(!online(s))return 'Offline';if(domain(s.entity_id)==='scene')return 'Ready';return String(s.state).replaceAll('_',' ')}
+function labelState(s){if(s&&domain(s.entity_id)==='weather'&&window.VAutomateWeather)return VAutomateWeather.present(s).label;if(!online(s))return 'Offline';if(domain(s.entity_id)==='scene')return 'Ready';const d=domain(s.entity_id);if(d==='person')return s.state==='home'?'Home':s.state==='not_home'?'Away':s.state.replaceAll('_',' ');if(d==='binary_sensor'){const open=['door','window','opening'].includes(s.attributes.device_class);return s.state==='on'?(open?'Open':'Detected'):(open?'Closed':'Clear')}return ({on:'On',off:'Off',armed_home:'Armed home',armed_away:'Armed away',armed_night:'Armed night',disarmed:'Disarmed',idle:'Idle',playing:'Playing',paused:'Paused'})[s.state]||String(s.state).replaceAll('_',' ')}
 function entitiesFor(room){return room.entities.map(id=>state.entities.get(id)).filter(Boolean)}
 function admin(){return state.home?.user.can_edit===true}
 function controlsAllowed(){return client.connected&&!state.home?.read_only}
@@ -27,7 +27,7 @@ function heading(title,description,action){const row=element('div','page-heading
 function section(title,subtitle=''){const row=element('div','section-heading');row.append(element('h2','',title));if(subtitle)row.append(element('span','caption',subtitle));return row}
 function empty(title,description,action){const box=element('section','panel empty-state');box.append(icon('home'),element('h2','',title),element('p','',description));if(action)box.append(action);return box}
 function setConnection(message,connected){$('#connection').classList.toggle('connected',connected);$('#connection span').textContent=message;document.body.classList.toggle('disconnected',!connected);updateLive()}
-function banner(){const box=$('#status-banner');if(window.STUDIO_DEMO_CLIENT){box.hidden=false;box.textContent='SHOWROOM · Simulated devices. Nothing connects to or operates your home.'}else if(state.home?.compatibility.status==='unsupported_core'){box.hidden=false;box.textContent=state.home.compatibility.message}else if(state.home?.read_only){box.hidden=false;box.textContent='Read-only evaluation · Live readings are available. Device commands are disabled.'}else if(state.home?.compatibility.certified===false){box.hidden=false;box.textContent='Commissioning evaluation · This installation has not completed commercial release testing.'}else box.hidden=true}
+function banner(){const box=$('#status-banner');if(window.STUDIO_DEMO_CLIENT){box.hidden=false;box.textContent='SHOWROOM · Simulated devices. Nothing connects to or operates your home.'}else if(state.home?.compatibility.status==='unsupported_core'){box.hidden=false;box.textContent=state.home.compatibility.message}else if(state.home?.read_only){box.hidden=false;box.textContent='Read-only evaluation · Live readings are available. Device commands are disabled.'}else if(state.home?.compatibility.certified===false&&admin()&&['care','manage'].includes(state.route)){box.hidden=false;box.textContent='Commissioning evaluation · This installation has not completed commercial release testing.'}else box.hidden=true}
 function navigate(route,room){location.hash='#/'+route+(room?'/'+encodeURIComponent(room):'')}
 function readRoute(){const parts=location.hash.slice(2).split('/');state.route=['home','rooms','room','routines','care','manage'].includes(parts[0])?parts[0]:'home';try{state.room=decodeURIComponent(parts[1]||'')}catch{state.room=''}render();document.body.classList.remove('sidebar-open');$('#scrim').hidden=true;$('#menu-toggle').setAttribute('aria-expanded','false');window.scrollTo({top:0,behavior:'instant'})}
 function navigation(){const nav=$('#navigation');nav.replaceChildren();for(const [route,label,mark] of [['home','Home','home'],['rooms','Rooms','rooms'],['routines','Routines','routines'],['care','Home Care','care'],...(admin()?[['manage','Manage home','rooms']]:[])]){const b=button('',()=>navigate(route),state.route===route||state.route==='room'&&route==='rooms'?'selected':'');b.setAttribute('aria-label',label);b.append(icon(mark),element('span','',label));nav.append(b)}}
@@ -35,9 +35,9 @@ function render(){navigation();banner();const page=$('#page');page.replaceChildr
 function master(room,category){const ids=room.entities.filter(id=>domain(id)===category);if(!ids.length)return null;const b=iconButton(category,`Toggle all ${category==='light'?'lights':category==='fan'?'fans':'switches'} in ${room.name}`,()=>runCommand(b,{room_id:room.id,category}),'round-control');b.dataset.roomMaster=room.id;b.dataset.category=category;return b}
 function roomCard(room){const box=element('article','panel room-card');box.dataset.roomCard=room.id;box.append(button('',()=>navigate('room',room.id),'room-link'));box.firstChild.setAttribute('aria-label','Open '+room.name);box.append(element('h3','',room.name));const meta=element('div','room-meta');meta.dataset.roomMeta=room.id;box.append(meta);const arrow=element('span','room-arrow');arrow.append(icon('arrow'));box.append(arrow);const row=element('div','room-controls');for(const cat of ['light','fan','switch']){const b=master(room,cat);if(b)row.append(b)}box.append(row);return box}
 function updateWeatherReading(item,s){const weather=window.VAutomateWeather?.present(s,{connected:client.connected});if(!weather)return;if(item.dataset.condition!==weather.icon){item.querySelector('.weather-icon').replaceChildren(VAutomateWeather.createIcon(weather));item.dataset.condition=weather.icon}item.querySelector('.weather-condition').textContent=weather.label;item.querySelector('.weather-temperature').textContent=weather.temperature===null?'—':new Intl.NumberFormat(undefined,{maximumFractionDigits:1}).format(weather.temperature)+weather.unit;const details=[];if(weather.humidity!==null)details.push('Humidity '+weather.humidity+'%');if(weather.wind!==null)details.push('Wind '+weather.wind+' '+weather.windUnit);item.querySelector('.weather-facts').textContent=details.join(' · ');const time=weather.updatedAt?new Date(weather.updatedAt):null;item.querySelector('.weather-updated').textContent=!client.connected?'Last known conditions':time&&Number.isFinite(time.getTime())?'Updated '+time.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'Reported by your home'}
-function weatherReading(s){const item=element('article','reading weather-reading');item.dataset.weatherFor=s.entity_id;const symbol=element('span','weather-icon');item.append(element('span','weather-location',entityName(s)),symbol,element('strong','weather-temperature'),element('span','weather-condition'),element('small','weather-facts'),element('small','weather-updated'));updateWeatherReading(item,s);return item}
-function renderHome(page){const hour=new Date().getHours(),greeting=hour<12?'Good morning.':hour<18?'Good afternoon.':'Good evening.';page.append(heading(greeting,state.home.layout.subtitle,admin()?button('Personalize',openSetup,'quiet'):null));const highlights=[...state.entities.values()].filter(s=>['weather','person','alarm_control_panel'].includes(domain(s.entity_id)));if(highlights.length){const row=element('div','reading-row');for(const s of highlights){if(domain(s.entity_id)==='weather'){row.append(weatherReading(s));continue}const item=button('',()=>domain(s.entity_id)==='alarm_control_panel'?alarmDialog(s):deviceDetails(s),'reading');item.append(icon(domain(s.entity_id)));const copy=element('div');const value=element('strong','',labelState(s));value.dataset.statusFor=s.entity_id;copy.append(value,element('small','',entityName(s)));item.append(copy);row.append(item)}page.append(row)}if(state.home.layout.quick_actions.length){page.append(section('Make yourself at home.'));const row=element('div','quick-grid');for(const q of state.home.layout.quick_actions){const s=state.entities.get(q.entity_id);if(!s)continue;const b=button('',()=>{const current=state.entities.get(q.entity_id);runCommand(b,{entity_id:current.entity_id,action:domain(current.entity_id)==='scene'?'turn_on':current.state==='on'?'turn_off':'turn_on',data:{},...(domain(current.entity_id)==='scene'?{}:{expected_state:current.state})})},'quick-action');b.dataset.quickEntity=s.entity_id;b.append(icon(domain(s.entity_id)==='scene'?'routines':'switch'),element('span','',q.label));row.append(b)}page.append(row)}renderHomeCards(page);if(state.home.layout.show_rooms===false)return;page.append(section('Your rooms.',state.home.layout.rooms.length+' spaces'));const grid=element('div','grid');for(const room of state.home.layout.rooms)grid.append(roomCard(room));page.append(grid);if(!state.home.layout.rooms.length)page.append(empty('A home made yours.','Your installer can select the rooms and devices that belong on your dashboard.',admin()?button('Set up this home',openSetup,'primary'):null))}
-function renderRooms(page){page.append(heading('Every room. In harmony.','Direct controls, familiar spaces and just the information you need.',admin()?button('Organize rooms',manageRooms,'quiet'):null));const grid=element('div','grid');for(const room of state.home.layout.rooms)grid.append(roomCard(room));page.append(grid)}
+function weatherReading(s){const item=element('article','panel weather-reading weather-panel');item.dataset.weatherFor=s.entity_id;const symbol=element('span','weather-icon');item.append(element('span','weather-location',entityName(s)),symbol,element('strong','weather-temperature'),element('span','weather-condition'),element('small','weather-facts'),element('small','weather-updated'));updateWeatherReading(item,s);return item}
+function renderHome(page){const greeting='Welcome home.';page.append(heading(greeting,state.home.layout.subtitle,admin()?button('Personalize',openSetup,'quiet'):null));const context=[...state.entities.values()];const weather=context.find(s=>domain(s.entity_id)==='weather'),people=context.filter(s=>domain(s.entity_id)==='person'),alarms=context.filter(s=>domain(s.entity_id)==='alarm_control_panel');if(weather||people.length||alarms.length){const lead=element('section','home-lead');if(weather)lead.append(weatherReading(weather));if(people.length||alarms.length){const panel=element('article','panel people-panel');panel.append(element('span','eyebrow','The people who make it home'));if(people.length){const row=element('div','people-row');for(const person of people){const item=element('div','person-status'),avatar=element('span','person-avatar',entityName(person).split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase());avatar.dataset.personAvatar=person.entity_id;item.append(avatar,element('strong','',entityName(person)));const status=element('small','',labelState(person));status.dataset.statusFor=person.entity_id;item.append(status);row.append(item)}panel.append(row)}for(const alarm of alarms){const row=element('div','home-security');row.append(icon('alarm_control_panel'));const copy=element('div');copy.append(element('strong','','Home security'));const status=element('small','',labelState(alarm));status.dataset.statusFor=alarm.entity_id;copy.append(status);row.append(copy,button('Manage',()=>alarmDialog(state.entities.get(alarm.entity_id)),'quiet'));panel.append(row)}lead.append(panel)}page.append(lead)}if(state.home.layout.quick_actions.length){page.append(section('Make yourself at home.'));const row=element('div','quick-grid');for(const q of state.home.layout.quick_actions){const s=state.entities.get(q.entity_id);if(!s)continue;const b=button('',()=>{const current=state.entities.get(q.entity_id);runCommand(b,{entity_id:current.entity_id,action:domain(current.entity_id)==='scene'?'turn_on':current.state==='on'?'turn_off':'turn_on',data:{},...(domain(current.entity_id)==='scene'?{}:{expected_state:current.state})})},'quick-action');b.dataset.quickEntity=s.entity_id;b.append(icon(domain(s.entity_id)==='scene'?'routines':'switch'),element('span','',q.label));row.append(b)}page.append(row)}renderHomeCards(page);if(state.home.layout.show_rooms===false)return;page.append(section('Your rooms.',state.home.layout.rooms.length+' spaces'));const grid=element('div','grid');for(const room of state.home.layout.rooms)grid.append(roomCard(room));page.append(grid);if(!state.home.layout.rooms.length)page.append(empty('A home made yours.','Your installer can select the rooms and devices that belong on your dashboard.',admin()?button('Set up this home',openSetup,'primary'):null))}
+function renderRooms(page){page.append(heading('Room to feel at home.','Choose a space. Everything you need is inside.',admin()?button('Organize rooms',manageRooms,'quiet'):null));const grid=element('div','grid');for(const room of state.home.layout.rooms)grid.append(roomCard(room));page.append(grid)}
 function renderRoom(page){const room=state.home.layout.rooms.find(r=>r.id===state.room);if(!room){page.append(empty('This room has moved.','Return to your rooms to find its current place.',button('View rooms',()=>navigate('rooms'),'primary')));return}page.append(heading(room.name,'A little comfort. Exactly where you need it.'));const items=entitiesFor(room);const readings=items.filter(s=>['sensor','binary_sensor'].includes(domain(s.entity_id)));if(readings.length){const row=element('div','reading-row');for(const s of readings){const reading=element('div','reading');if(domain(s.entity_id)==='binary_sensor'){reading.dataset.binaryReading=s.entity_id;reading.hidden=s.state!=='on'}const wrap=element('div'),value=element('strong','',s.state+' '+(s.attributes.unit_of_measurement||''));if(domain(s.entity_id)==='binary_sensor')value.textContent=['door','window','opening'].includes(s.attributes.device_class)?'Open':'Detected';else value.dataset.valueFor=s.entity_id;wrap.append(value,element('small','',entityName(s)));reading.append(icon(domain(s.entity_id)),wrap);row.append(reading)}page.append(row)}const masters=element('div','room-masters');for(const category of ['light','fan','switch']){const m=master(room,category);if(m)masters.append(m)}page.append(masters,section('Your controls.'));const grid=element('div','grid compact');for(const s of items.filter(s=>!['sensor','binary_sensor'].includes(domain(s.entity_id))))grid.append(deviceCard(s));page.append(grid)}
 function deviceCard(s){const box=element('article','panel device');box.dataset.deviceCard=s.entity_id;const top=element('div','device-head'),copy=element('div'),name=element('h3','',entityName(s)),status=element('div','device-status',labelState(s));status.dataset.statusFor=s.entity_id;copy.append(name,status);top.append(icon(domain(s.entity_id)),copy);const ops=s.operations||{},d=domain(s.entity_id);if(['light','switch','fan','input_boolean'].includes(d)&&(ops.turn_on||ops.turn_off)){const toggle=button('',()=>{const current=state.entities.get(s.entity_id);runCommand(toggle,{entity_id:s.entity_id,action:current.state==='on'?'turn_off':'turn_on',data:{},expected_state:current.state})},'switch');toggle.setAttribute('role','switch');toggle.setAttribute('aria-label',entityName(s));toggle.dataset.powerFor=s.entity_id;top.append(toggle)}box.append(top);const body=element('div','device-actions');
  const actions=d==='cover'?[['open_cover','Open'],['stop_cover','Stop'],['close_cover','Close']]:d==='media_player'?[['media_play','Play'],['media_pause','Pause'],['turn_on','On'],['turn_off','Off']]:d==='scene'?[['turn_on','Activate']]:[];
@@ -53,7 +53,7 @@ function deviceCard(s){const box=element('article','panel device');box.dataset.d
  if(ops.set_hvac_mode){const sel=selectField('Mode',(s.attributes.hvac_modes||[]).map(x=>[x,x.replaceAll('_',' ')]),s.state);sel.input.dataset.actuator='';sel.input.onchange=()=>runCommand(sel.input,{entity_id:s.entity_id,action:'set_hvac_mode',data:{hvac_mode:sel.input.value}});box.append(sel.wrap)}
  body.append(iconButton('history','Device history',()=>deviceDetails(state.entities.get(s.entity_id))));box.append(body);return box}
 function rangeControl(s,label,key,min,max,value,action,suffix,divisor=1){const wrap=element('label','range-field',label),input=element('input'),output=element('output','',Math.round(value)+suffix);input.type='range';input.min=min;input.max=max;input.step=key==='temperature'?(s.attributes.target_temp_step||.5):1;input.value=value;input.setAttribute('aria-label',label+' · '+entityName(s));input.dataset.rangeFor=s.entity_id;input.dataset.valueKey=key;input.dataset.divisor=divisor;input.dataset.actuator='';input.oninput=()=>{output.textContent=input.value+suffix};input.onchange=()=>runCommand(input,{entity_id:s.entity_id,action,data:{[key]:Number(input.value)/divisor}});wrap.append(input,output);return wrap}
-function updateLive(){for(const item of document.querySelectorAll('[data-weather-for]')){const s=state.entities.get(item.dataset.weatherFor);if(s)updateWeatherReading(item,s)}for(const node of document.querySelectorAll('[data-binary-reading]'))node.hidden=state.entities.get(node.dataset.binaryReading)?.state!=='on';for(const node of document.querySelectorAll('[data-status-for]'))node.textContent=labelState(state.entities.get(node.dataset.statusFor));for(const node of document.querySelectorAll('[data-value-for]')){const s=state.entities.get(node.dataset.valueFor);if(s)node.textContent=s.state+' '+(s.attributes.unit_of_measurement||'')}for(const node of document.querySelectorAll('[data-device-card]'))node.classList.toggle('is-on',state.entities.get(node.dataset.deviceCard)?.state==='on');for(const node of document.querySelectorAll('[data-power-for]')){const s=state.entities.get(node.dataset.powerFor);node.setAttribute('aria-checked',s?.state==='on'?'true':'false');node.disabled=!controlsAllowed()||!online(s)||(s?.state==='on'?!s?.operations?.turn_off:!s?.operations?.turn_on)}for(const node of document.querySelectorAll('[data-quick-entity]')){const s=state.entities.get(node.dataset.quickEntity);node.classList.toggle('is-on',domain(node.dataset.quickEntity)==='input_boolean'&&s?.state==='on');node.disabled=!controlsAllowed()||!online(s)||(!s?.operations?.turn_on&&!s?.operations?.turn_off)}for(const node of document.querySelectorAll('[data-actuator]'))node.disabled=!controlsAllowed();for(const node of document.querySelectorAll('[data-room-master]')){const room=state.home?.layout.rooms.find(r=>r.id===node.dataset.roomMaster),items=room?entitiesFor(room).filter(s=>domain(s.entity_id)===node.dataset.category):[];const on=items.some(s=>s.state==='on');node.classList.toggle('is-on',on);node.setAttribute('aria-pressed',String(on));node.disabled=!controlsAllowed()||items.some(s=>!online(s)||!s.operations?.turn_on||!s.operations?.turn_off)}for(const node of document.querySelectorAll('[data-room-meta]')){const room=state.home?.layout.rooms.find(r=>r.id===node.dataset.roomMeta);if(!room)continue;const items=entitiesFor(room),on=items.filter(s=>['light','fan','switch'].includes(domain(s.entity_id))&&s.state==='on').length,offline=items.filter(s=>!online(s)).length,active=items.filter(s=>domain(s.entity_id)==='binary_sensor'&&s.state==='on');node.replaceChildren(element('span','caption',on?on+' on':'At rest'));if(offline)node.append(element('span','caption',offline+' offline'));for(const s of active.slice(0,2))node.append(element('span','presence-active',entityName(s)))}for(const node of document.querySelectorAll('[data-range-for]')){if(document.activeElement===node)continue;const s=state.entities.get(node.dataset.rangeFor);if(!s)continue;const key=node.dataset.valueKey;let value=key==='brightness_pct'?Math.round((s.attributes.brightness||0)/255*100):key==='position'?s.attributes.current_position:s.attributes[key];if(value!==undefined){node.value=value*Number(node.dataset.divisor||1);node.nextElementSibling.textContent=node.value+(key==='temperature'?'°':'%')}}}
+function updateLive(){for(const avatar of document.querySelectorAll('[data-person-avatar]'))avatar.classList.toggle('at-home',state.entities.get(avatar.dataset.personAvatar)?.state==='home');for(const item of document.querySelectorAll('[data-weather-for]')){const s=state.entities.get(item.dataset.weatherFor);if(s)updateWeatherReading(item,s)}for(const node of document.querySelectorAll('[data-binary-reading]'))node.hidden=state.entities.get(node.dataset.binaryReading)?.state!=='on';for(const node of document.querySelectorAll('[data-status-for]'))node.textContent=labelState(state.entities.get(node.dataset.statusFor));for(const node of document.querySelectorAll('[data-value-for]')){const s=state.entities.get(node.dataset.valueFor);if(s)node.textContent=s.state+' '+(s.attributes.unit_of_measurement||'')}for(const node of document.querySelectorAll('[data-device-card]'))node.classList.toggle('is-on',state.entities.get(node.dataset.deviceCard)?.state==='on');for(const node of document.querySelectorAll('[data-power-for]')){const s=state.entities.get(node.dataset.powerFor);node.setAttribute('aria-checked',s?.state==='on'?'true':'false');node.disabled=!controlsAllowed()||!online(s)||(s?.state==='on'?!s?.operations?.turn_off:!s?.operations?.turn_on)}for(const node of document.querySelectorAll('[data-quick-entity]')){const s=state.entities.get(node.dataset.quickEntity);node.classList.toggle('is-on',domain(node.dataset.quickEntity)==='input_boolean'&&s?.state==='on');node.disabled=!controlsAllowed()||!online(s)||(!s?.operations?.turn_on&&!s?.operations?.turn_off)}for(const node of document.querySelectorAll('[data-actuator]'))node.disabled=!controlsAllowed();for(const node of document.querySelectorAll('[data-room-master]')){const room=state.home?.layout.rooms.find(r=>r.id===node.dataset.roomMaster),items=room?entitiesFor(room).filter(s=>domain(s.entity_id)===node.dataset.category):[];const on=items.some(s=>s.state==='on');node.classList.toggle('is-on',on);node.setAttribute('aria-pressed',String(on));node.disabled=!controlsAllowed()||items.some(s=>!online(s)||!s.operations?.turn_on||!s.operations?.turn_off)}for(const node of document.querySelectorAll('[data-room-meta]')){const room=state.home?.layout.rooms.find(r=>r.id===node.dataset.roomMeta);if(!room)continue;const items=entitiesFor(room),on=items.filter(s=>['light','fan','switch'].includes(domain(s.entity_id))&&s.state==='on').length,offline=items.filter(s=>!online(s)).length,active=items.filter(s=>domain(s.entity_id)==='binary_sensor'&&s.state==='on');node.replaceChildren(element('span','caption',on?on+' on':'At rest'));if(offline)node.append(element('span','caption',offline+' offline'));for(const s of active.slice(0,2))node.append(element('span','presence-active',entityName(s)))}for(const node of document.querySelectorAll('[data-range-for]')){if(document.activeElement===node)continue;const s=state.entities.get(node.dataset.rangeFor);if(!s)continue;const key=node.dataset.valueKey;let value=key==='brightness_pct'?Math.round((s.attributes.brightness||0)/255*100):key==='position'?s.attributes.current_position:s.attributes[key];if(value!==undefined){node.value=value*Number(node.dataset.divisor||1);node.nextElementSibling.textContent=node.value+(key==='temperature'?'°':'%')}}}
 async function runCommand(control,payload){if(control.classList.contains('pending'))return;control.classList.add('pending');control.setAttribute('aria-busy','true');try{const result=await client.command(payload);if(result.status==='check_required')toast('Some devices need checking. Their current states will update shortly.');else if(result.status==='pending')toast('Your home is already handling this request.');else toast('Requested. Waiting for the device to confirm.');await refreshSnapshot()}catch(error){toast(errorText(error))}finally{control.classList.remove('pending');control.removeAttribute('aria-busy');updateLive()}}
 async function refreshSnapshot(){if(!client.connected||!state.home||state.loading||document.hidden)return;state.loading=true;try{const result=await client.request('snapshot');for(const s of result.entities)state.entities.set(s.entity_id,s);if(result.revision!==state.home.revision&&!$('#dialog').open)await bootstrap();else updateLive()}catch(error){if(!['offline','connection_lost'].includes(error.code))toast(errorText(error))}finally{state.loading=false}}
 async function bootstrap(){const epoch=++state.bootstrapEpoch;try{const home=await client.request('bootstrap');if(epoch!==state.bootstrapEpoch)return;if(home.api_version!==1||!home.user||!home.layout||!Array.isArray(home.layout.rooms)||!Array.isArray(home.layout.quick_actions)||!Array.isArray(home.entities)||!home.compatibility)throw new StudioError('incompatible','This home needs a compatible VAutomate app update.');state.home=home;client.serverOffset=home.server_time*1000-Date.now();state.entities=new Map(home.entities.map(s=>[s.entity_id,s]));$('#dialog').close();render();clearInterval(state.timer);state.timer=setInterval(refreshSnapshot,3000)}catch(error){if(state.home){window.VAutomateUI?.failure(error,{readOnly:true,retry:bootstrap});return}state.home=null;setConnection('Installer setup needed',false);render();showDialog('Let’s connect your home.',errorText(error));if(error.code==='unknown_command')$('#dialog-content').append(element('p','caption','This separate commercial service has not been installed. Your existing home and personal dashboard have not been changed.'));else $('#dialog-content').append(button('Try again',bootstrap,'primary'))}}
@@ -98,15 +98,15 @@ function reviewBundle(bundle,inputs,preview){
 function routineEditor(existing){if(!admin())return;const value=existing?structuredClone(existing):{id:uid(),name:'Evening comfort',time:'19:00',days:[0,1,2,3,4,5,6],enabled:false,actions:[]};delete value.owner_id;delete value.origin;let householdConsidered=false;function draw(){const root=showDialog('Your daily rhythm.','Choose a time and the things your home should do. Security commands cannot be scheduled here.');const name=field('Routine name',value.name),time=field('Time',value.time,'time');name.input.oninput=()=>value.name=name.input.value;time.input.onchange=()=>value.time=time.input.value;root.append(name.wrap,time.wrap);const days=element('div','day-picker');for(let i=0;i<7;i++){const b=button(['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][i],()=>{value.days=value.days.includes(i)?value.days.filter(d=>d!==i):[...value.days,i];draw()},value.days.includes(i)?'primary':'');days.append(b)}root.append(days);const enabled=field('Enabled',undefined,'checkbox');enabled.input.checked=value.enabled;enabled.input.onchange=()=>value.enabled=enabled.input.checked;root.append(enabled.wrap);for(let i=0;i<value.actions.length;i++){const action=value.actions[i],row=element('div','settings-row');row.append(element('span','',entityName(state.entities.get(action.entity_id))+' · '+action.action.replaceAll('_',' ')),button('Remove',()=>{value.actions.splice(i,1);draw()}));root.append(row)}root.append(button('Add an action',()=>routineAction(value,draw)));const save=button('Save routine',async()=>{if(!householdConsidered){dialogError(Error('Please consider the effect on other people at home before saving.'));return}save.disabled=true;try{await client.request('routine/save',{routine:value,revision:state.home.revision});$('#dialog').close();await bootstrap();toast('Routine saved.')}catch(error){dialogError(error)}finally{save.disabled=false}},'primary');const notice=element('section','shared-home-notice');notice.append(element('h3','','Consider everyone at home.'),element('p','','What feels right to you may disturb someone else. Discuss changes, respect privacy, keep manual controls available, and test before enabling.'));const acknowledge=field('I have considered other people at home',undefined,'checkbox');acknowledge.input.checked=householdConsidered;save.disabled=!householdConsidered;acknowledge.input.onchange=()=>{householdConsidered=acknowledge.input.checked;save.disabled=!householdConsidered};notice.append(acknowledge.wrap);root.append(notice,save);if(existing)root.append(button('Remove routine',async()=>{if(!confirm('Remove this routine from this home?'))return;try{await client.request('routine/remove',{routine_id:value.id,revision:state.home.revision});$('#dialog').close();await bootstrap();toast('Routine removed.')}catch(error){dialogError(error)}}))}draw()}
 function routineAction(value,done){const root=showDialog('What should happen?','Select one supported device and action.');const candidates=[...state.entities.values()].filter(s=>['light','cover','switch','fan','climate','media_player','input_boolean'].includes(domain(s.entity_id))&&Object.keys(s.operations||{}).length);if(!candidates.length){root.append(element('p','caption','No supported controls have been added to this home yet.'));return}const device=selectField('Device',candidates.map(s=>[s.entity_id,entityName(s)])),action=selectField('Action',[]),fields=element('div');root.append(device.wrap,action.wrap,fields);function actions(){action.input.replaceChildren();const s=candidates.find(s=>s.entity_id===device.input.value);for(const key of Object.keys(s.operations)){const o=element('option','',key.replaceAll('_',' '));o.value=key;action.input.append(o)}parameters()}function parameters(){fields.replaceChildren();const s=candidates.find(s=>s.entity_id===device.input.value);for(const key of s.operations[action.input.value]||[]){if(['color_temp_kelvin','brightness_pct'].includes(key)&&action.input.value==='turn_on')continue;const f=key==='source'?selectField('Source',(s.attributes.source_list||[]).map(x=>[x,x])):key==='hvac_mode'?selectField('Mode',(s.attributes.hvac_modes||[]).map(x=>[x,x])):key==='is_volume_muted'?selectField('Mute',[['true','On'],['false','Off']]):field(key.replaceAll('_',' '),'','number');f.input.dataset.parameter=key;fields.append(f.wrap)}}device.input.onchange=actions;action.input.onchange=parameters;actions();root.append(button('Add to routine',()=>{const data={};for(const input of fields.querySelectorAll('[data-parameter]')){const k=input.dataset.parameter;data[k]=['source','hvac_mode'].includes(k)?input.value:k==='is_volume_muted'?input.value==='true':Number(input.value)}value.actions.push({entity_id:device.input.value,action:action.input.value,data});done()},'primary'))}
 async function renderCare(page){if(admin()){const tools=element('div','device-actions');tools.append(button('Replace a device',openReplacement),button('Add a device',addDeviceHub,'primary'),button('Household access',openHousehold,'primary'),button('Backups & recovery',openRecovery),button('Installation status',installationStatus,'quiet'));page.append(tools)}page.append(heading('Your home, looked after.','Clear status and useful help. Technical work stays with your installer.'));const card=element('section','panel');card.append(element('h3','',client.connected?'Your home is connected.':'Your home is reconnecting.'),element('p','caption','VAutomate Studio '+state.home.bridge_version));page.append(card);if(admin()){const box=element('section','panel');box.append(element('h3','', 'Installation care'));page.append(section('For your installer.'),box);try{const data=await client.request('care');if(state.route!=='care')return;for(const check of data.checks){const row=element('div','settings-row');row.append(element('span','',check.name),element('span','pill',check.status.replaceAll('_',' ')));box.append(row)}box.append(element('p','caption','Software updates and device pairing still require commissioning validation. Backups and reviewed restoration are available above.'))}catch(error){box.append(element('p','caption',errorText(error)))}}const list=element('section','panel');page.append(section('Recent activity.'),list);try{const result=await client.request('activity');if(state.route!=='care')return;if(!result.items.length)list.append(element('p','caption','No activity recorded since this service started.'));for(const item of result.items.slice(0,30)){const row=element('div','activity-row'),copy=element('div','',(item.entity_id?entityName(state.entities.get(item.entity_id))+' · ':'')+item.action.replaceAll('_',' '));copy.append(element('small','', ' · '+item.outcome.replaceAll('_',' ')));row.append(copy,element('small','',new Date(item.time*1000).toLocaleTimeString()));list.append(row)}}catch(error){list.append(element('p','caption',errorText(error)))}}
-function appearance(){const root=showDialog('A home in your colours.','Choose the finish that feels right.');const choices=element('div','theme-options');for(const [id,name,colour] of [['obsidian','Obsidian · warm charcoal','#20251a'],['jet','Jet Black · pure black','#000000'],['sand','Limestone · warm light','#e8e3d4']]){const b=button('',()=>{document.body.dataset.theme=id;try{localStorage.setItem('vautomate-studio-commercial:theme',id)}catch{}},'theme-option');const swatch=element('span','theme-swatch');swatch.style.setProperty('--swatch',colour);b.append(swatch,element('span','',name));choices.append(b)}root.append(choices)}
+function appearance(){const root=showDialog('A home in your colours.','Applied instantly. Your choice is remembered on this device.'),choices=element('div','theme-options');choices.setAttribute('role','radiogroup');choices.setAttribute('aria-label','Appearance theme');const current=()=>document.body.dataset.theme;function choose(id){document.body.dataset.theme=id;try{localStorage.setItem('vautomate-studio-commercial:theme',id)}catch{}for(const option of choices.querySelectorAll('button'))option.setAttribute('aria-checked',String(option.dataset.themeChoice===id))}for(const [id,name,colour,detail] of [['sand','Ivory','#f8f7f0','Warm stone · quiet light'],['teal','Deep teal','#101a19','Evergreen · soft glass'],['jet','Jet Black','#000000','Pure black · champagne'],['obsidian','Obsidian','#151617','Smoked graphite · warm porcelain']]){const b=button('',()=>choose(id),'theme-option');b.dataset.themeChoice=id;b.setAttribute('role','radio');b.setAttribute('aria-checked',String(current()===id));const swatch=element('span','theme-swatch');swatch.style.setProperty('--swatch',colour);const copy=element('span');copy.append(element('strong','',name),element('small','',detail));b.append(swatch,copy);choices.append(b)}root.append(choices)}
 function account(){const root=showDialog(state.home?.user.name||'Your account.',state.home?(admin()?'Home administrator':'Home member'):'Sign in to your home.');if(window.__VA_NATIVE__)root.append(button('Server connections',()=>window.__VA_NATIVE__.call('app.settings')));if(state.home)root.append(button('Change my password',changeOwnPassword));root.append(button('Sign out',()=>client.signout()))}
 async function connection(){state.home=null;state.entities.clear();clearInterval(state.timer);render();const root=showDialog('Welcome home.','Sign in with your home account. Your password stays between this device and your home server.');const form=element('div');root.append(form);const start=button('Sign in',async()=>{start.disabled=true;try{const setup=await StudioOnboarding.probe(client);if(setup?.needsOwner){const owner=showDialog('A home that’s yours.','Create the first owner for this new VAutomate home. Existing homes keep their accounts.');const body=element('div');owner.append(body);StudioOnboarding.render(client,body,dialogError);return}await loginStep(await client.beginLogin(),form)}catch(error){dialogError(error);start.disabled=false}},'primary');form.append(start);root.append(element('p','caption',window.__VA_NATIVE__?'Your sign-in is remembered in encrypted app storage.':'Browser sign-in lasts for this session. The Android app can remember this device securely.'))}
 async function loginStep(step,root){root.replaceChildren();if(step.type==='create_entry'){await client.finish(step.result);return}if(step.type!=='form')throw Error('This sign-in method needs installer assistance.');const form=element('form');for(const schema of step.data_schema||[]){const f=field(schema.name==='username'?'Username':schema.name==='password'?'Password':schema.name==='code'?'Verification code':schema.name,'',schema.name==='password'?'password':'text');f.input.name=schema.name;f.input.required=schema.required!==false;f.input.autocomplete=schema.name==='password'?'current-password':schema.name==='username'?'username':'one-time-code';if(schema.name==='code')f.input.inputMode='numeric';form.append(f.wrap)}const submit=element('button','primary',step.step_id==='mfa'?'Verify':'Continue');submit.type='submit';form.append(submit);form.onsubmit=async event=>{event.preventDefault();submit.disabled=true;const data=Object.fromEntries(new FormData(form));data.client_id=client.clientId;for(const input of form.querySelectorAll('input[type=password],input[name=code]'))input.value='';try{await loginStep(await client.auth('/auth/login_flow/'+encodeURIComponent(step.flow_id),data),root)}catch(error){dialogError(error);submit.disabled=false}};root.append(form);if(Object.keys(step.errors||{}).length)$('#dialog-error').textContent='Those details were not accepted. Please try again.'}
-function setupNavigation(){const media=matchMedia('(max-width:760px)');$('#menu-toggle').append(icon('menu'));$('#menu-toggle').onclick=()=>{if(media.matches){const open=document.body.classList.toggle('sidebar-open');$('#scrim').hidden=!open;$('#menu-toggle').setAttribute('aria-expanded',String(open))}else{document.body.classList.toggle('sidebar-compact');$('#menu-toggle').setAttribute('aria-expanded',String(!document.body.classList.contains('sidebar-compact')))}};$('#scrim').onclick=()=>{document.body.classList.remove('sidebar-open');$('#scrim').hidden=true};$('#appearance').onclick=appearance;$('#account-button').onclick=account;$('#signout').onclick=()=>client.signout();$('#close-dialog').onclick=closeDialog;$('#dialog').addEventListener('close',()=>{clearInterval(state.dialogTimer);state.dialogTimer=null;for(const input of $('#dialog').querySelectorAll('input[type=password],input[name=code]'))input.value=''});$('#dialog').addEventListener('cancel',event=>{clearPasswords();if(state.wizard&&state.dirty){event.preventDefault();closeDialog()}});window.addEventListener('hashchange',readRoute);window.addEventListener('scroll',()=>document.body.classList.toggle('scrolled',window.scrollY>45),{passive:true});document.addEventListener('keydown',spatialNavigation)}
+function setupNavigation(){const media=matchMedia('(max-width:760px)');try{if(!media.matches&&localStorage.getItem('vautomate-studio-commercial:sidebar')==='compact')document.body.classList.add('sidebar-compact')}catch{}$('#menu-toggle').append(icon('menu'));$('#menu-toggle').onclick=()=>{if(media.matches){const open=document.body.classList.toggle('sidebar-open');$('#scrim').hidden=!open;$('#menu-toggle').setAttribute('aria-expanded',String(open))}else{document.body.classList.toggle('sidebar-compact');try{localStorage.setItem('vautomate-studio-commercial:sidebar',document.body.classList.contains('sidebar-compact')?'compact':'expanded')}catch{}$('#menu-toggle').setAttribute('aria-expanded',String(!document.body.classList.contains('sidebar-compact')))}};$('#scrim').onclick=()=>{document.body.classList.remove('sidebar-open');$('#scrim').hidden=true};$('#appearance').onclick=appearance;$('#account-button').onclick=account;$('#signout').onclick=()=>client.signout();$('#close-dialog').onclick=closeDialog;$('#dialog').addEventListener('close',()=>{clearInterval(state.dialogTimer);state.dialogTimer=null;for(const input of $('#dialog').querySelectorAll('input[type=password],input[name=code]'))input.value=''});$('#dialog').addEventListener('cancel',event=>{clearPasswords();if(state.wizard&&state.dirty){event.preventDefault();closeDialog()}});window.addEventListener('hashchange',readRoute);window.addEventListener('scroll',()=>document.body.classList.toggle('scrolled',window.scrollY>45),{passive:true});document.addEventListener('keydown',spatialNavigation)}
 function spatialNavigation(event){if(!document.body.classList.contains('tv')||!['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(event.key))return;const active=document.activeElement;if(['INPUT','SELECT','TEXTAREA'].includes(active?.tagName))return;const root=$('#dialog').open?$('#dialog'):document.body;const nodes=[...root.querySelectorAll('button:not(:disabled),a[href],input:not(:disabled),select:not(:disabled),[tabindex="0"]')].filter(n=>n.getClientRects().length&&getComputedStyle(n).visibility!=='hidden');const from=active?.getBoundingClientRect();if(!from||active===document.body){nodes[0]?.focus();event.preventDefault();return}const cx=from.x+from.width/2,cy=from.y+from.height/2,dx=event.key==='ArrowRight'?1:event.key==='ArrowLeft'?-1:0,dy=event.key==='ArrowDown'?1:event.key==='ArrowUp'?-1:0;let best=null,score=Infinity;for(const node of nodes){if(node===active)continue;const r=node.getBoundingClientRect(),x=r.x+r.width/2-cx,y=r.y+r.height/2-cy,forward=x*dx+y*dy;if(forward<4)continue;const cross=Math.abs(dx?y:x),cost=forward+cross*3;if(cost<score){best=node;score=cost}}if(best){event.preventDefault();best.focus({preventScroll:true});best.scrollIntoView({block:'nearest',inline:'nearest'})}else if(dy){event.preventDefault();window.scrollBy({top:dy*window.innerHeight*.65,behavior:'smooth'})}}
 window.connection=connection;window.restoreRememberedSession=()=>client.restore();window.StudioApp={state,client,render,readRoute,runCommand,updateLive,bootstrap,openSetup};
 client.onstatus=setConnection;client.onready=bootstrap;client.onlogin=connection;
-try{const theme=localStorage.getItem('vautomate-studio-commercial:theme');if(['obsidian','jet','sand'].includes(theme))document.body.dataset.theme=theme}catch{}
+try{const theme=localStorage.getItem('vautomate-studio-commercial:theme');if(['obsidian','jet','sand','teal'].includes(theme))document.body.dataset.theme=theme}catch{}
 if(/Android TV|GoogleTV|SMART-TV|AFT/.test(navigator.userAgent))document.body.classList.add('tv');
 setupNavigation();readRoute();
 setTimeout(()=>{const arrival=$('#arrival');arrival.style.opacity='0';arrival.style.pointerEvents='none';setTimeout(()=>arrival.remove(),600)},matchMedia('(prefers-reduced-motion:reduce)').matches?150:3300);
@@ -343,6 +343,349 @@ async function dashboardCardEditor(original){
 
 /* VA_SHARED_UI_STATES_BEGIN */
 /*
+Copyright (c) 2014, Vladimir Agafonkin
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are
+permitted provided that the following conditions are met:
+
+   1. Redistributions of source code must retain the above copyright notice, this list of
+      conditions and the following disclaimer.
+
+   2. Redistributions in binary form must reproduce the above copyright notice, this list
+      of conditions and the following disclaimer in the documentation and/or other materials
+      provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+*/
+/*
+ (c) 2011-2015, Vladimir Agafonkin
+ SunCalc is a JavaScript library for calculating sun/moon position and light phases.
+ https://github.com/mourner/suncalc
+*/
+
+(function () { 'use strict';
+
+// shortcuts for easier to read formulas
+
+var PI   = Math.PI,
+    sin  = Math.sin,
+    cos  = Math.cos,
+    tan  = Math.tan,
+    asin = Math.asin,
+    atan = Math.atan2,
+    acos = Math.acos,
+    rad  = PI / 180;
+
+// sun calculations are based on http://aa.quae.nl/en/reken/zonpositie.html formulas
+
+
+// date/time constants and conversions
+
+var dayMs = 1000 * 60 * 60 * 24,
+    J1970 = 2440588,
+    J2000 = 2451545;
+
+function toJulian(date) { return date.valueOf() / dayMs - 0.5 + J1970; }
+function fromJulian(j)  { return new Date((j + 0.5 - J1970) * dayMs); }
+function toDays(date)   { return toJulian(date) - J2000; }
+
+
+// general calculations for position
+
+var e = rad * 23.4397; // obliquity of the Earth
+
+function rightAscension(l, b) { return atan(sin(l) * cos(e) - tan(b) * sin(e), cos(l)); }
+function declination(l, b)    { return asin(sin(b) * cos(e) + cos(b) * sin(e) * sin(l)); }
+
+function azimuth(H, phi, dec)  { return atan(sin(H), cos(H) * sin(phi) - tan(dec) * cos(phi)); }
+function altitude(H, phi, dec) { return asin(sin(phi) * sin(dec) + cos(phi) * cos(dec) * cos(H)); }
+
+function siderealTime(d, lw) { return rad * (280.16 + 360.9856235 * d) - lw; }
+
+function astroRefraction(h) {
+    if (h < 0) // the following formula works for positive altitudes only.
+        h = 0; // if h = -0.08901179 a div/0 would occur.
+
+    // formula 16.4 of "Astronomical Algorithms" 2nd edition by Jean Meeus (Willmann-Bell, Richmond) 1998.
+    // 1.02 / tan(h + 10.26 / (h + 5.10)) h in degrees, result in arc minutes -> converted to rad:
+    return 0.0002967 / Math.tan(h + 0.00312536 / (h + 0.08901179));
+}
+
+// general sun calculations
+
+function solarMeanAnomaly(d) { return rad * (357.5291 + 0.98560028 * d); }
+
+function eclipticLongitude(M) {
+
+    var C = rad * (1.9148 * sin(M) + 0.02 * sin(2 * M) + 0.0003 * sin(3 * M)), // equation of center
+        P = rad * 102.9372; // perihelion of the Earth
+
+    return M + C + P + PI;
+}
+
+function sunCoords(d) {
+
+    var M = solarMeanAnomaly(d),
+        L = eclipticLongitude(M);
+
+    return {
+        dec: declination(L, 0),
+        ra: rightAscension(L, 0)
+    };
+}
+
+
+var SunCalc = {};
+
+
+// calculates sun position for a given date and latitude/longitude
+
+SunCalc.getPosition = function (date, lat, lng) {
+
+    var lw  = rad * -lng,
+        phi = rad * lat,
+        d   = toDays(date),
+
+        c  = sunCoords(d),
+        H  = siderealTime(d, lw) - c.ra;
+
+    return {
+        azimuth: azimuth(H, phi, c.dec),
+        altitude: altitude(H, phi, c.dec)
+    };
+};
+
+
+// sun times configuration (angle, morning name, evening name)
+
+var times = SunCalc.times = [
+    [-0.833, 'sunrise',       'sunset'      ],
+    [  -0.3, 'sunriseEnd',    'sunsetStart' ],
+    [    -6, 'dawn',          'dusk'        ],
+    [   -12, 'nauticalDawn',  'nauticalDusk'],
+    [   -18, 'nightEnd',      'night'       ],
+    [     6, 'goldenHourEnd', 'goldenHour'  ]
+];
+
+// adds a custom time to the times config
+
+SunCalc.addTime = function (angle, riseName, setName) {
+    times.push([angle, riseName, setName]);
+};
+
+
+// calculations for sun times
+
+var J0 = 0.0009;
+
+function julianCycle(d, lw) { return Math.round(d - J0 - lw / (2 * PI)); }
+
+function approxTransit(Ht, lw, n) { return J0 + (Ht + lw) / (2 * PI) + n; }
+function solarTransitJ(ds, M, L)  { return J2000 + ds + 0.0053 * sin(M) - 0.0069 * sin(2 * L); }
+
+function hourAngle(h, phi, d) { return acos((sin(h) - sin(phi) * sin(d)) / (cos(phi) * cos(d))); }
+function observerAngle(height) { return -2.076 * Math.sqrt(height) / 60; }
+
+// returns set time for the given sun altitude
+function getSetJ(h, lw, phi, dec, n, M, L) {
+
+    var w = hourAngle(h, phi, dec),
+        a = approxTransit(w, lw, n);
+    return solarTransitJ(a, M, L);
+}
+
+
+// calculates sun times for a given date, latitude/longitude, and, optionally,
+// the observer height (in meters) relative to the horizon
+
+SunCalc.getTimes = function (date, lat, lng, height) {
+
+    height = height || 0;
+
+    var lw = rad * -lng,
+        phi = rad * lat,
+
+        dh = observerAngle(height),
+
+        d = toDays(date),
+        n = julianCycle(d, lw),
+        ds = approxTransit(0, lw, n),
+
+        M = solarMeanAnomaly(ds),
+        L = eclipticLongitude(M),
+        dec = declination(L, 0),
+
+        Jnoon = solarTransitJ(ds, M, L),
+
+        i, len, time, h0, Jset, Jrise;
+
+
+    var result = {
+        solarNoon: fromJulian(Jnoon),
+        nadir: fromJulian(Jnoon - 0.5)
+    };
+
+    for (i = 0, len = times.length; i < len; i += 1) {
+        time = times[i];
+        h0 = (time[0] + dh) * rad;
+
+        Jset = getSetJ(h0, lw, phi, dec, n, M, L);
+        Jrise = Jnoon - (Jset - Jnoon);
+
+        result[time[1]] = fromJulian(Jrise);
+        result[time[2]] = fromJulian(Jset);
+    }
+
+    return result;
+};
+
+
+// moon calculations, based on http://aa.quae.nl/en/reken/hemelpositie.html formulas
+
+function moonCoords(d) { // geocentric ecliptic coordinates of the moon
+
+    var L = rad * (218.316 + 13.176396 * d), // ecliptic longitude
+        M = rad * (134.963 + 13.064993 * d), // mean anomaly
+        F = rad * (93.272 + 13.229350 * d),  // mean distance
+
+        l  = L + rad * 6.289 * sin(M), // longitude
+        b  = rad * 5.128 * sin(F),     // latitude
+        dt = 385001 - 20905 * cos(M);  // distance to the moon in km
+
+    return {
+        ra: rightAscension(l, b),
+        dec: declination(l, b),
+        dist: dt
+    };
+}
+
+SunCalc.getMoonPosition = function (date, lat, lng) {
+
+    var lw  = rad * -lng,
+        phi = rad * lat,
+        d   = toDays(date),
+
+        c = moonCoords(d),
+        H = siderealTime(d, lw) - c.ra,
+        h = altitude(H, phi, c.dec),
+        // formula 14.1 of "Astronomical Algorithms" 2nd edition by Jean Meeus (Willmann-Bell, Richmond) 1998.
+        pa = atan(sin(H), tan(phi) * cos(c.dec) - sin(c.dec) * cos(H));
+
+    h = h + astroRefraction(h); // altitude correction for refraction
+
+    return {
+        azimuth: azimuth(H, phi, c.dec),
+        altitude: h,
+        distance: c.dist,
+        parallacticAngle: pa
+    };
+};
+
+
+// calculations for illumination parameters of the moon,
+// based on http://idlastro.gsfc.nasa.gov/ftp/pro/astro/mphase.pro formulas and
+// Chapter 48 of "Astronomical Algorithms" 2nd edition by Jean Meeus (Willmann-Bell, Richmond) 1998.
+
+SunCalc.getMoonIllumination = function (date) {
+
+    var d = toDays(date || new Date()),
+        s = sunCoords(d),
+        m = moonCoords(d),
+
+        sdist = 149598000, // distance from Earth to Sun in km
+
+        phi = acos(sin(s.dec) * sin(m.dec) + cos(s.dec) * cos(m.dec) * cos(s.ra - m.ra)),
+        inc = atan(sdist * sin(phi), m.dist - sdist * cos(phi)),
+        angle = atan(cos(s.dec) * sin(s.ra - m.ra), sin(s.dec) * cos(m.dec) -
+                cos(s.dec) * sin(m.dec) * cos(s.ra - m.ra));
+
+    return {
+        fraction: (1 + cos(inc)) / 2,
+        phase: 0.5 + 0.5 * inc * (angle < 0 ? -1 : 1) / Math.PI,
+        angle: angle
+    };
+};
+
+
+function hoursLater(date, h) {
+    return new Date(date.valueOf() + h * dayMs / 24);
+}
+
+// calculations for moon rise/set times are based on http://www.stargazing.net/kepler/moonrise.html article
+
+SunCalc.getMoonTimes = function (date, lat, lng, inUTC) {
+    var t = new Date(date);
+    if (inUTC) t.setUTCHours(0, 0, 0, 0);
+    else t.setHours(0, 0, 0, 0);
+
+    var hc = 0.133 * rad,
+        h0 = SunCalc.getMoonPosition(t, lat, lng).altitude - hc,
+        h1, h2, rise, set, a, b, xe, ye, d, roots, x1, x2, dx;
+
+    // go in 2-hour chunks, each time seeing if a 3-point quadratic curve crosses zero (which means rise or set)
+    for (var i = 1; i <= 24; i += 2) {
+        h1 = SunCalc.getMoonPosition(hoursLater(t, i), lat, lng).altitude - hc;
+        h2 = SunCalc.getMoonPosition(hoursLater(t, i + 1), lat, lng).altitude - hc;
+
+        a = (h0 + h2) / 2 - h1;
+        b = (h2 - h0) / 2;
+        xe = -b / (2 * a);
+        ye = (a * xe + b) * xe + h1;
+        d = b * b - 4 * a * h1;
+        roots = 0;
+
+        if (d >= 0) {
+            dx = Math.sqrt(d) / (Math.abs(a) * 2);
+            x1 = xe - dx;
+            x2 = xe + dx;
+            if (Math.abs(x1) <= 1) roots++;
+            if (Math.abs(x2) <= 1) roots++;
+            if (x1 < -1) x1 = x2;
+        }
+
+        if (roots === 1) {
+            if (h0 < 0) rise = i + x1;
+            else set = i + x1;
+
+        } else if (roots === 2) {
+            rise = i + (ye < 0 ? x2 : x1);
+            set = i + (ye < 0 ? x1 : x2);
+        }
+
+        if (rise && set) break;
+
+        h0 = h2;
+    }
+
+    var result = {};
+
+    if (rise) result.rise = hoursLater(t, rise);
+    if (set) result.set = hoursLater(t, set);
+
+    if (!rise && !set) result[ye > 0 ? 'alwaysUp' : 'alwaysDown'] = true;
+
+    return result;
+};
+
+
+// export as Node module / AMD module / browser variable
+if (typeof exports === 'object' && typeof module !== 'undefined') module.exports = SunCalc;
+else if (typeof define === 'function' && define.amd) define(SunCalc);
+else window.SunCalc = SunCalc;
+
+}());
+
+/*
 ISC License
 
 Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2022 as part of Feather (MIT). All other copyright (c) for Lucide are held by Lucide Contributors 2022.
@@ -364,9 +707,12 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 (()=>{'use strict';
 const icons={"sun":[["circle",{"cx":"12","cy":"12","r":"4"}],["path",{"d":"M12 2v2"}],["path",{"d":"M12 20v2"}],["path",{"d":"m4.93 4.93 1.41 1.41"}],["path",{"d":"m17.66 17.66 1.41 1.41"}],["path",{"d":"M2 12h2"}],["path",{"d":"M20 12h2"}],["path",{"d":"m6.34 17.66-1.41 1.41"}],["path",{"d":"m19.07 4.93-1.41 1.41"}]],"moon":[["path",{"d":"M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"}]],"cloud":[["path",{"d":"M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"}]],"cloud-sun":[["path",{"d":"M12 2v2"}],["path",{"d":"m4.93 4.93 1.41 1.41"}],["path",{"d":"M20 12h2"}],["path",{"d":"m19.07 4.93-1.41 1.41"}],["path",{"d":"M15.947 12.65a4 4 0 0 0-5.925-4.128"}],["path",{"d":"M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z"}]],"cloud-moon":[["path",{"d":"M10.188 8.5A6 6 0 0 1 16 4a1 1 0 0 0 6 6 6 6 0 0 1-3 5.197"}],["path",{"d":"M13 16a3 3 0 1 1 0 6H7a5 5 0 1 1 4.9-6Z"}]],"cloud-rain":[["path",{"d":"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"}],["path",{"d":"M16 14v6"}],["path",{"d":"M8 14v6"}],["path",{"d":"M12 16v6"}]],"cloud-lightning":[["path",{"d":"M6 16.326A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 .5 8.973"}],["path",{"d":"m13 12-3 5h4l-3 5"}]],"cloud-snow":[["path",{"d":"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"}],["path",{"d":"M8 15h.01"}],["path",{"d":"M8 19h.01"}],["path",{"d":"M12 17h.01"}],["path",{"d":"M12 21h.01"}],["path",{"d":"M16 15h.01"}],["path",{"d":"M16 19h.01"}]],"cloud-hail":[["path",{"d":"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"}],["path",{"d":"M16 14v2"}],["path",{"d":"M8 14v2"}],["path",{"d":"M16 20h.01"}],["path",{"d":"M8 20h.01"}],["path",{"d":"M12 16v2"}],["path",{"d":"M12 22h.01"}]],"wind":[["path",{"d":"M12.8 19.6A2 2 0 1 0 14 16H2"}],["path",{"d":"M17.5 8a2.5 2.5 0 1 1 2 4H2"}],["path",{"d":"M9.8 4.4A2 2 0 1 1 11 8H2"}]],"cloud-fog":[["path",{"d":"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"}],["path",{"d":"M16 17H7"}],["path",{"d":"M17 21H9"}]],"triangle-alert":[["path",{"d":"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"}],["path",{"d":"M12 9v4"}],["path",{"d":"M12 17h.01"}]],"cloud-off":[["path",{"d":"m2 2 20 20"}],["path",{"d":"M5.782 5.782A7 7 0 0 0 9 19h8.5a4.5 4.5 0 0 0 1.307-.193"}],["path",{"d":"M21.532 16.5A4.5 4.5 0 0 0 17.5 10h-1.79A7.008 7.008 0 0 0 10 5.07"}]]};
 const conditions={sunny:['Sunny','sun'],'clear-night':['Clear night','moon'],cloudy:['Cloudy','cloud'],partlycloudy:['Partly cloudy','cloud-sun'],rainy:['Rainy','cloud-rain'],pouring:['Heavy rain','cloud-rain'],lightning:['Thunderstorms','cloud-lightning'],'lightning-rainy':['Thunderstorms and rain','cloud-lightning'],snowy:['Snow','cloud-snow'],'snowy-rainy':['Sleet','cloud-snow'],hail:['Hail','cloud-hail'],fog:['Fog','cloud-fog'],windy:['Windy','wind'],'windy-variant':['Windy and cloudy','wind'],exceptional:['Exceptional conditions','triangle-alert']};
-function present(entity,{sun,connected=true}={}){const attrs=entity?.attributes||{},raw=String(entity?.state||'unknown').toLowerCase(),available=!!entity&&!['unknown','unavailable','none',''].includes(raw);const night=typeof attrs.is_daytime==='boolean'?!attrs.is_daytime:sun?.state==='below_horizon'?true:sun?.state==='above_horizon'?false:null;const condition=raw==='sunny'&&night===true?'clear-night':raw;const mapped=conditions[condition],label=!entity?'Weather not configured':!available?'Weather unavailable':mapped?.[0]||'Condition not recognized';const numeric=v=>v!==null&&v!==undefined&&String(v).trim()!==''&&Number.isFinite(Number(v))?Number(v):null;return {raw,condition,label,icon:condition==='partlycloudy'&&night===true?'cloud-moon':mapped?.[1]||'cloud-off',night,available,connected,temperature:available?numeric(attrs.temperature):null,unit:attrs.temperature_unit||'°C',humidity:available?numeric(attrs.humidity):null,wind:available?numeric(attrs.wind_speed):null,windUnit:attrs.wind_speed_unit||'',updatedAt:entity?.last_updated||entity?.last_changed||null}}
+let homeConfig=null;
+function setHomeConfig(config){const latitude=Number(config?.latitude),longitude=Number(config?.longitude);homeConfig=config&&config.latitude!==null&&config.longitude!==null&&Number.isFinite(latitude)&&Number.isFinite(longitude)&&Math.abs(latitude)<=90&&Math.abs(longitude)<=180?{latitude,longitude}:null}
+function daylight(attrs,sun,now){if(['above_horizon','below_horizon'].includes(sun?.state))return {night:sun.state==='below_horizon',source:'home-sun'};if(homeConfig&&window.SunCalc)try{const altitude=window.SunCalc.getPosition(now,homeConfig.latitude,homeConfig.longitude).altitude;if(Number.isFinite(altitude))return {night:altitude<-0.833*Math.PI/180,source:'home-location'}}catch{}if(typeof attrs.is_daytime==='boolean')return {night:!attrs.is_daytime,source:'weather-provider'};return {night:null,source:'unknown'}}
+function present(entity,{sun,connected=true,now=new Date()}={}){const attrs=entity?.attributes||{},raw=String(entity?.state||'unknown').toLowerCase(),available=!!entity&&!['unknown','unavailable','none',''].includes(raw);const light=daylight(attrs,sun,now),night=light.night;const condition=raw==='sunny'&&night===true?'clear-night':raw;const mapped=conditions[condition],label=!entity?'Weather not configured':!available?'Weather unavailable':mapped?.[0]||'Condition not recognized';const numeric=v=>v!==null&&v!==undefined&&String(v).trim()!==''&&Number.isFinite(Number(v))?Number(v):null;return {raw,condition,label,icon:condition==='partlycloudy'&&night===true?'cloud-moon':mapped?.[1]||'cloud-off',night,daylightSource:light.source,available,connected,temperature:available?numeric(attrs.temperature):null,unit:attrs.temperature_unit||'°C',humidity:available?numeric(attrs.humidity):null,wind:available?numeric(attrs.wind_speed):null,windUnit:attrs.wind_speed_unit||'',updatedAt:entity?.last_updated||entity?.last_changed||null}}
 function createIcon(condition){const key=typeof condition==='object'?condition.icon:conditions[condition]?.[1]||'cloud-off',svg=document.createElementNS('http://www.w3.org/2000/svg','svg');for(const [k,v] of Object.entries({viewBox:'0 0 24 24',width:'1em',height:'1em',fill:'none',stroke:'currentColor','stroke-width':'1.5','stroke-linecap':'round','stroke-linejoin':'round','aria-hidden':'true'}))svg.setAttribute(k,v);for(const [type,attrs] of icons[key]||icons['cloud-off']){const n=document.createElementNS(svg.namespaceURI,type);for(const [k,v] of Object.entries(attrs))n.setAttribute(k,v);svg.append(n)}return svg}
-window.VAutomateWeather={present,createIcon};
+window.VAutomateWeather={present,createIcon,setHomeConfig};
 })();
 
 /* VAutomate interaction states. Same implementation in Personal and Studio. */

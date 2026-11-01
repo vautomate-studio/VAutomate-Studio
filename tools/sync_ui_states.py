@@ -5,7 +5,7 @@ project=Path(__file__).resolve().parents[1]
 workspace=project.parents[1]
 marker='/* VA_SHARED_UI_STATES_BEGIN */'
 css_marker='/* VA_SHARED_UI_STATES_CSS_BEGIN */'
-common=(project/'shared/weather.js').read_text(encoding='utf-8')+'\n'+(project/'shared/ui-states.js').read_text(encoding='utf-8')
+common=(project/'shared/suncalc.js').read_text(encoding='utf-8')+'\n'+(project/'shared/weather.js').read_text(encoding='utf-8')+'\n'+(project/'shared/ui-states.js').read_text(encoding='utf-8')
 css=(project/'shared/ui-states.css').read_text(encoding='utf-8').rstrip()
 studio=r'''
 (()=>{const ui=window.VAutomateUI;

@@ -18,7 +18,13 @@ class WeatherContextTest(unittest.TestCase):
     def test_sun_context_respects_entity_read_permission(self):
         actor=f.Actor('member','Member',False,lambda entity:entity!='sun.sun',lambda _:False)
         self.assertNotIn('is_daytime',self.weather(actor)['attributes'])
-    def test_explicit_weather_daylight_has_priority(self):
+    def test_home_sun_overrides_stale_provider_daylight(self):
         self.adapter.states['weather.home']['attributes']['is_daytime']=True
         actor=f.Actor('admin','Owner',True,lambda _:True,lambda _:True)
-        self.assertIs(self.weather(actor)['attributes']['is_daytime'],True)
+        self.assertIs(self.weather(actor)['attributes']['is_daytime'],False)
+
+    def test_home_location_fallback_when_no_sun_entity(self):
+        self.adapter.states.pop('sun.sun')
+        self.adapter.weather_daylight=lambda:False
+        actor=f.Actor('admin','Owner',True,lambda _:True,lambda _:True)
+        self.assertIs(self.weather(actor)['attributes']['is_daytime'],False)
