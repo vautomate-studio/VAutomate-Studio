@@ -74,3 +74,5 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--in
 .room-icon-control.active .va-device-icon[data-icon-kind=fan]{animation:va-device-spin 3s linear infinite}.room-icon-control.active .va-device-icon[data-icon-kind=light]{color:var(--accent)}.round-control>.va-device-icon{width:22px;height:22px}@media(prefers-reduced-motion:reduce){.room-icon-control.active .va-device-icon{animation:none!important}}
 
 .room-controls-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;align-items:stretch}@media(max-width:600px){.room-controls-grid{grid-template-columns:minmax(0,1fr)!important}}
+
+.device-head>.device-glyph{grid-column:1/-1;justify-self:center;display:grid;place-items:center;width:64px;height:64px;margin:3px auto 7px;border-radius:22px;background:color-mix(in srgb,var(--accent) 7%,transparent);color:var(--muted)}

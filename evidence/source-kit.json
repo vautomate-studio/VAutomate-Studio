@@ -1,6 +1,6 @@
 {
   "version": "0.4.0-alpha.16",
-  "sha256": "bc4ad156f85728c2f3e3c6d3ed24d49c52fcf9f709722cc0931586eea48c9ce4",
+  "sha256": "29195ddf28fc6a7ffd0ef3e4baae9b1858bf7d070d5eccfb2aa2c83978612eb2",
   "scope": "Reproducible commissioning SOURCE archive; not an Android APK or container image claim",
   "recorded_environment": "Windows; independent Linux CI must reproduce this same hash",
   "production_certified": false
