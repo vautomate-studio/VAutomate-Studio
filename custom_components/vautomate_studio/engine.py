@@ -20,7 +20,7 @@ from .rule_store import RuleStore
 from .document import normalize as normalize_document
 
 API_VERSION = 1
-BRIDGE_VERSION = "0.4.0-alpha.16"
+BRIDGE_VERSION = "0.4.0-alpha.17"
 PREFIX = "vautomate_studio/v1/"
 DOMAINS = {"light", "cover", "switch", "fan", "climate", "media_player", "alarm_control_panel", "scene", "input_boolean", "binary_sensor", "sensor", "camera", "person", "weather"}
 INFORMATIONAL = {"binary_sensor", "sensor", "camera", "person", "weather"}
