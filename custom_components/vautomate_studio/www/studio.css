@@ -57,3 +57,18 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--in
 .scrolled .brandbar .brand .long-logo{transform:translateX(-50%) translateY(-5px)}
 .scrolled .brandbar .brand .short-logo{transform:translateX(-50%) scale(1)}
 .zigbee-network{position:relative;padding:20px;margin:16px 0;display:grid;grid-template-columns:1fr auto;gap:10px 12px}.zigbee-network-title{display:flex;align-items:center;gap:12px;min-width:0}.zigbee-network h3{margin:0;font-size:1.2rem}.zigbee-network>.caption{grid-column:1/-1;margin:0}.zigbee-network .pill{align-self:center}.zigbee-details{margin-top:24px;padding:18px 0;border-top:1px solid var(--line)}.zigbee-details summary{cursor:pointer;color:var(--muted);padding:10px 0;min-height:44px}.pairing-instructions{padding-left:22px;display:grid;gap:12px;margin:22px 0;font-size:.85rem;color:var(--muted)}
+
+/* Clear room sections and centered, state-aware device identity. */
+.va-device-icon{width:36px;height:36px;display:block;flex:none;transform-origin:50% 50%;transition:color .25s,filter .25s,opacity .25s}
+.device-head,.control-top{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:12px!important;align-items:center!important}
+.device-head>.va-device-icon,.control-top>.control-symbol{grid-column:1/-1;justify-self:center;display:grid!important;place-items:center!important;width:64px!important;height:64px!important;margin:3px auto 7px!important;border-radius:22px;background:color-mix(in srgb,var(--accent) 7%,transparent);color:var(--muted);position:relative!important;inset:auto!important}
+.control-symbol>.va-device-icon{width:36px;height:36px}.device-head>.va-device-icon{padding:14px;box-sizing:content-box;width:36px!important;height:36px!important}
+.device-head>div,.control-top>div{min-width:0}.device-head .switch,.control-top .power-switch{grid-column:2;grid-row:2}.control-top .control-more{grid-column:2;grid-row:3}
+.is-on .va-device-icon{color:var(--accent);filter:drop-shadow(0 0 7px color-mix(in srgb,var(--accent) 30%,transparent))}
+.is-on .va-device-icon[data-icon-kind=fan]{animation:va-device-spin 3s linear infinite}.is-on .va-device-icon[data-icon-kind=light]{animation:va-device-glow 3s ease-in-out infinite}.is-on .va-device-icon[data-icon-kind=pump],.is-on .va-device-icon[data-icon-kind=heater]{animation:va-device-glow 2s ease-in-out infinite}
+.unavailable .va-device-icon,.disconnected .va-device-icon{animation:none!important;filter:none!important;opacity:.45}
+.section-heading,.control-section>.module-heading{padding:18px 0 12px;border-bottom:1px solid var(--line);margin-top:20px;margin-bottom:16px;align-items:center}.section-heading h2,.control-section>.module-heading h2{font-family:Georgia,serif;font-weight:400;font-size:24px;letter-spacing:-.35px}
+@keyframes va-device-spin{to{transform:rotate(360deg)}}@keyframes va-device-glow{50%{filter:drop-shadow(0 0 11px color-mix(in srgb,var(--accent) 45%,transparent))}}
+@media(prefers-reduced-motion:reduce){.va-device-icon{animation:none!important;transition:none!important}}
+
+.room-icon-control.active .va-device-icon[data-icon-kind=fan]{animation:va-device-spin 3s linear infinite}.room-icon-control.active .va-device-icon[data-icon-kind=light]{color:var(--accent)}.round-control>.va-device-icon{width:22px;height:22px}@media(prefers-reduced-motion:reduce){.room-icon-control.active .va-device-icon{animation:none!important}}

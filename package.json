@@ -1,10 +1,10 @@
 {
   "name": "vautomate-studio-commercial",
-  "version": "0.4.0-alpha.15",
+  "version": "0.4.0-alpha.16",
   "private": true,
   "description": "Isolated VAutomate customer product and compatibility service",
   "scripts": {
-    "test": "node tests/repository.cjs && node tests/weather.cjs && node tests/presentation.cjs && node tests/coordinator.cjs && node tests/client.cjs && node tests/session.cjs && node tests/connection.cjs && node tests/onboarding.cjs && node tests/browser.cjs && node tests/onboarding-browser.cjs && node tests/recovery-browser.cjs && node tests/household-browser.cjs && node tests/pairing-browser.cjs && node tests/replacement-browser.cjs && node tests/management-browser.cjs && node tests/ui-states-browser.cjs",
+    "test": "node tests/repository.cjs && node tests/weather.cjs && node tests/presentation.cjs && node tests/icons.cjs && node tests/coordinator.cjs && node tests/client.cjs && node tests/session.cjs && node tests/connection.cjs && node tests/onboarding.cjs && node tests/browser.cjs && node tests/onboarding-browser.cjs && node tests/recovery-browser.cjs && node tests/household-browser.cjs && node tests/pairing-browser.cjs && node tests/replacement-browser.cjs && node tests/management-browser.cjs && node tests/ui-states-browser.cjs",
     "test:blueprints": "node tools/test_blueprints.cjs"
   },
   "devDependencies": {
